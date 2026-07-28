@@ -5,6 +5,8 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 
 import App from './App'
+import { isConfigured, missingConfigKeys } from './lib/supabaseClient'
+import ConfigError from './components/feedback/ConfigError'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
@@ -14,7 +16,18 @@ import ErrorBoundary from './components/feedback/ErrorBoundary'
 import '@fontsource-variable/inter'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = ReactDOM.createRoot(document.getElementById('root'))
+
+// Stop here if the build has no database settings, rather than letting every
+// provider fail one after another against a placeholder client.
+if (!isConfigured) {
+  root.render(
+    <React.StrictMode>
+      <ConfigError missing={missingConfigKeys} />
+    </React.StrictMode>,
+  )
+} else {
+  root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -48,4 +61,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,
-)
+  )
+}

@@ -3,14 +3,25 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!url || !anonKey) {
-  throw new Error(
-    'Supabase is not configured. Copy .env.example to .env.local and fill in ' +
-      'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-  )
-}
+/**
+ * Whether the build received its Supabase settings.
+ *
+ * This used to `throw` here. That is a module-level throw, so it fired before
+ * React mounted and before any error boundary existed — the whole page went
+ * blank with nothing but a console message. On a hosting platform where the
+ * environment variables simply had not been added yet, that is impossible to
+ * diagnose from the browser. The app now boots and says what is missing.
+ */
+export const isConfigured = Boolean(url && anonKey)
 
-export const supabase = createClient(url, anonKey, {
+export const missingConfigKeys = [
+  !url && 'VITE_SUPABASE_URL',
+  !anonKey && 'VITE_SUPABASE_ANON_KEY',
+].filter(Boolean)
+
+// Harmless placeholders keep every `import { supabase }` working so the app can
+// render the setup screen instead of collapsing at import time.
+export const supabase = createClient(url || 'https://placeholder.supabase.co', anonKey || 'placeholder-key', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
