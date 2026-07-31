@@ -19,6 +19,7 @@ const ServiceFields    = lazy(() => import('./pages/admin/ServiceFields'))
 const PendingDiscounts = lazy(() => import('./pages/admin/PendingDiscounts'))
 const OfficeSettings   = lazy(() => import('./pages/admin/OfficeSettings'))
 const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
+const Backup           = lazy(() => import('./pages/admin/Backup'))
 
 const RegistrationDashboard = lazy(() => import('./pages/registration/Dashboard'))
 const NewClient             = lazy(() => import('./pages/registration/NewClient'))
@@ -94,6 +95,7 @@ export default function App() {
             <Route path="/admin/discounts" element={<PendingDiscounts />} />
             <Route path="/admin/settings" element={<OfficeSettings />} />
             <Route path="/admin/logs" element={<ActivityLogs />} />
+            <Route path="/admin/backup" element={<Backup />} />
           </Route>
 
           {/* ---------- Registration ---------- */}

@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { FileText } from 'lucide-react'
+import { FileText, Printer } from 'lucide-react'
 
 import PageHeader from '../../components/ui/PageHeader'
 import DataTable from '../../components/table/DataTable'
 import Badge from '../../components/ui/Badge'
+import Button from '../../components/ui/Button'
+import InvoiceModal from '../../components/print/InvoiceModal'
 import { Input } from '../../components/ui/Field'
 import { supabase } from '../../lib/supabaseClient'
 import { useTableState } from '../../hooks/useTableState'
@@ -14,6 +17,7 @@ import { PAYMENT_METHOD_LABELS } from '../../constants'
 export default function Invoices() {
   const { money } = useOfficeSettings()
   const table = useTableState({ defaultSort: { key: 'issued_at', dir: 'desc' } })
+  const [preview, setPreview] = useState(null)
   const f = table.filters
 
   const query = useQuery({
@@ -51,6 +55,16 @@ export default function Invoices() {
     { key: 'payment_method', header: 'Method', render: (r) => PAYMENT_METHOD_LABELS[r.payment_method] ?? r.payment_method },
     { key: 'status', header: 'Status', render: (r) => <Badge tone={r.status === 'paid' ? 'emerald' : 'amber'} dot>{r.status}</Badge> },
     { key: 'issued_at', header: 'Issued', sortable: true, render: (r) => formatDateTime(r.issued_at) },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (r) => (
+        <Button size="sm" variant="ghost" icon={Printer} onClick={() => setPreview(r)}>
+          View / Print
+        </Button>
+      ),
+    },
   ]
 
   return (
@@ -87,6 +101,8 @@ export default function Invoices() {
         exportFileName="invoices"
         enablePrint
       />
+
+      <InvoiceModal invoice={preview} onClose={() => setPreview(null)} />
     </>
   )
 }

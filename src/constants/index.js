@@ -110,6 +110,7 @@ export const NAV_ITEMS = [
   { to: '/admin/services', tKey: 'nav.services', label: 'Services', icon: 'Briefcase', roles: ['admin'] },
   { to: '/admin/settings', tKey: 'nav.officeSettings', label: 'Office Settings', icon: 'Settings', roles: ['admin'] },
   { to: '/admin/logs', tKey: 'nav.activityLogs', label: 'Activity Logs', icon: 'ScrollText', roles: ['admin'] },
+  { to: '/admin/backup', tKey: 'nav.backup', label: 'Backup', icon: 'DatabaseBackup', roles: ['admin'] },
 
   { to: '/registration', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['registration'], end: true },
   { to: '/registration/new', tKey: 'nav.newClient', label: 'New Client', icon: 'UserPlus', roles: ['registration'] },

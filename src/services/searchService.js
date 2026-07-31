@@ -48,6 +48,21 @@ export async function universalSearch(term, role) {
     )
   }
 
+  // Documents are searchable by title or file name, which is how staff refer
+  // to them ("the House Transfer agreement", "agreement_v2.docx").
+  if (role === 'admin' || role === 'alt' || role === 'finance') {
+    tasks.push(
+      supabase
+        .from('uploaded_documents')
+        .select('id, title, file_name, version, client_id, clients(full_name, registration_no)')
+        .or(`title.ilike.${like},file_name.ilike.${like}`)
+        .is('deleted_at', null)
+        .order('uploaded_at', { ascending: false })
+        .limit(LIMIT)
+        .then((r) => ['documents', r.data ?? []]),
+    )
+  }
+
   tasks.push(
     supabase
       .from('services')
@@ -69,7 +84,7 @@ export async function universalSearch(term, role) {
   }
 
   const settled = await Promise.all(tasks)
-  const out = { clients: [], receipts: [], invoices: [], services: [], employees: [] }
+  const out = { clients: [], receipts: [], invoices: [], documents: [], services: [], employees: [] }
   for (const [key, value] of settled) out[key] = value
   return out
 }

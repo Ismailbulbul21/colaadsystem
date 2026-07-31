@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -32,24 +33,26 @@ export default {
           800: '#6C4825',
           900: '#5C3D23',
         },
-        // Slightly cooled neutrals so white surfaces sit calmly against navy.
+        // Cooled neutrals, variable-driven so the scale inverts in dark mode.
         ink: {
-          50: '#F8FAFC',
-          100: '#F1F4F8',
-          200: '#E4E9F0',
-          300: '#CFD7E3',
-          400: '#9AA7BC',
-          500: '#6B7A93',
-          600: '#4E5C74',
-          700: '#3A465C',
-          800: '#263041',
-          900: '#151C28',
+          50: 'rgb(var(--ink-50) / <alpha-value>)',
+          100: 'rgb(var(--ink-100) / <alpha-value>)',
+          200: 'rgb(var(--ink-200) / <alpha-value>)',
+          300: 'rgb(var(--ink-300) / <alpha-value>)',
+          400: 'rgb(var(--ink-400) / <alpha-value>)',
+          500: 'rgb(var(--ink-500) / <alpha-value>)',
+          600: 'rgb(var(--ink-600) / <alpha-value>)',
+          700: 'rgb(var(--ink-700) / <alpha-value>)',
+          800: 'rgb(var(--ink-800) / <alpha-value>)',
+          900: 'rgb(var(--ink-900) / <alpha-value>)',
         },
+        // Driven by CSS variables so a single `.dark` class on <html> re-skins
+        // every surface at once, instead of tagging hundreds of components.
         surface: {
-          DEFAULT: '#FFFFFF',
-          muted: '#F6F8FC',
-          sunken: '#EEF2F8',
-          border: '#E3E9F1',
+          DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
+          muted: 'rgb(var(--surface-muted) / <alpha-value>)',
+          sunken: 'rgb(var(--surface-sunken) / <alpha-value>)',
+          border: 'rgb(var(--surface-border) / <alpha-value>)',
         },
       },
       fontFamily: {

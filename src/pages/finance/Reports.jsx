@@ -14,6 +14,40 @@ import { useTableState } from '../../hooks/useTableState'
 import { formatDate, startOfMonthInput, todayInput, dayRangeToTimestamps } from '../../utils/format'
 import { PAYMENT_METHOD_LABELS } from '../../constants'
 
+/** Quick period buttons — the four the office actually asks for. */
+const PERIODS = [
+  { key: 'today', label: 'Daily' },
+  { key: 'week', label: 'Weekly' },
+  { key: 'month', label: 'Monthly' },
+  { key: 'year', label: 'Yearly' },
+]
+
+function periodRange(key) {
+  const now = new Date()
+  const iso = (d) => d.toISOString().slice(0, 10)
+  const start = new Date(now)
+
+  switch (key) {
+    case 'today':
+      break
+    case 'week': {
+      // Week starts Saturday in Somalia, so step back to the most recent one
+      const day = now.getDay() // 0 Sun … 6 Sat
+      start.setDate(now.getDate() - ((day + 1) % 7))
+      break
+    }
+    case 'month':
+      start.setDate(1)
+      break
+    case 'year':
+      start.setMonth(0, 1)
+      break
+    default:
+      return null
+  }
+  return { from: iso(start), to: iso(now) }
+}
+
 const REPORTS = [
   { value: 'income', label: 'Income / Transactions' },
   { value: 'expenses', label: 'Expenses' },
@@ -182,6 +216,26 @@ export default function Reports() {
           <Select label="Report" value={report} onChange={(e) => table.setFilter('report', e.target.value)} options={REPORTS} />
           <Input label="From" type="date" value={from} onChange={(e) => table.setFilter('from', e.target.value)} />
           <Input label="To" type="date" value={to} onChange={(e) => table.setFilter('to', e.target.value)} />
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-surface-border pt-3">
+          <span className="text-2xs font-semibold uppercase tracking-wide text-ink-400">
+            Period
+          </span>
+          {PERIODS.map((p) => {
+            const r = periodRange(p.key)
+            const active = r && r.from === from && r.to === to
+            return (
+              <Button
+                key={p.key}
+                size="sm"
+                variant={active ? 'primary' : 'secondary'}
+                onClick={() => table.setFilters({ from: r.from, to: r.to })}
+              >
+                {p.label}
+              </Button>
+            )
+          })}
         </div>
       </div>
 

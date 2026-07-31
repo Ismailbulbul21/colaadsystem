@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import {
   LayoutDashboard, BadgePercent, Users, Briefcase, Settings, ScrollText,
   UserPlus, Inbox, FolderOpen, Wallet, ReceiptText, FileText, TrendingDown,
-  BarChart3, Search, Circle,
+  BarChart3, Search, Circle, DatabaseBackup,
 } from 'lucide-react'
 
 import { useAuth } from '../contexts/AuthContext'
@@ -17,7 +17,7 @@ import { assetUrl, BUNDLED_LOGO } from '../lib/supabaseClient'
 const ICONS = {
   LayoutDashboard, BadgePercent, Users, Briefcase, Settings, ScrollText,
   UserPlus, Inbox, FolderOpen, Wallet, ReceiptText, FileText, TrendingDown,
-  BarChart3, Search,
+  BarChart3, Search, DatabaseBackup,
 }
 
 export default function Sidebar({ open, onClose, badges = {} }) {

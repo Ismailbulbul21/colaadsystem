@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import {
-  Menu, Bell, LogOut, User, Search, Loader2, CheckCheck, X,
+  Menu, Bell, LogOut, User, Search, Loader2, CheckCheck, X, Sun, Moon,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 import { useAuth } from '../contexts/AuthContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useTheme } from '../contexts/ThemeContext'
 import { useDebounce } from '../hooks/useDebounce'
 import { universalSearch } from '../services/searchService'
 import { formatRelative } from '../utils/format'
@@ -19,6 +20,7 @@ export default function Topbar({ onMenuClick }) {
   const { profile, role, signOut } = useAuth()
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
   const { t, lang, setLang, languages } = useLanguage()
+  const { isDark, setTheme } = useTheme()
   const navigate = useNavigate()
 
   // Switching language also saves it to the employee's profile so it follows
@@ -173,6 +175,17 @@ export default function Topbar({ onMenuClick }) {
                   onSelect={go}
                 />
                 <SearchGroup
+                  title="Documents"
+                  items={results.documents}
+                  render={(d) => ({
+                    key: d.id,
+                    primary: d.title,
+                    secondary: `${d.file_name} · v${d.version} · ${d.clients?.registration_no ?? ''}`,
+                    to: `/clients/${d.client_id}`,
+                  })}
+                  onSelect={go}
+                />
+                <SearchGroup
                   title="Services"
                   items={results.services}
                   render={(s) => ({
@@ -207,6 +220,16 @@ export default function Topbar({ onMenuClick }) {
           </p>
           <p className="text-[11px] text-slate-400">{t(`role.${role}`, role)}</p>
         </div>
+
+        {/* ---------- light / dark ---------- */}
+        <button
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          title={isDark ? 'Switch to light' : 'Switch to dark'}
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="rounded-lg p-2 text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-800"
+        >
+          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
 
         {/* ---------- language switch ---------- */}
         <div className="flex items-center rounded-lg border border-surface-border p-0.5">

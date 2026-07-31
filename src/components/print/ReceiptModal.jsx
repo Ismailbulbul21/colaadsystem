@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
+import QrCode from './QrCode'
 import { supabase } from '../../lib/supabaseClient'
 import { exportNodeToPdf } from '../../utils/export'
 import { formatDateTime } from '../../utils/format'
@@ -151,6 +152,16 @@ export default function ReceiptModal({ receipt, onClose }) {
             <p>Received by: <span className="font-medium text-slate-800">{receipt.cashier_name}</span></p>
             {receipt.stamp_url && <img src={receipt.stamp_url} alt="" className="mt-2 h-16 object-contain" />}
           </div>
+
+          {/* Lets anyone holding the paper check it against the record */}
+          {receipt.qr_content && (
+            <div className="text-center">
+              <QrCode value={receipt.qr_content} size={88} className="mx-auto" />
+              <p className="mt-1 text-[9px] uppercase tracking-wide text-slate-400">
+                Scan to verify
+              </p>
+            </div>
+          )}
           <div className="text-center">
             {receipt.signature_url && (
               <img src={receipt.signature_url} alt="" className="mx-auto h-12 object-contain" />

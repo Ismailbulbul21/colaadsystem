@@ -10,6 +10,7 @@ import ConfigError from './components/feedback/ConfigError'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import ErrorBoundary from './components/feedback/ErrorBoundary'
 
 // Bundled locally so the interface never waits on a font CDN.
@@ -31,7 +32,9 @@ if (!isConfigured) {
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        {/* Language sits above auth so the login screen is Somali already */}
+        {/* Language and theme sit above auth so the login screen already
+            respects both before anyone signs in. */}
+        <ThemeProvider>
         <LanguageProvider>
           <AuthProvider>
             <ErrorBoundary>
@@ -58,6 +61,7 @@ if (!isConfigured) {
             />
           </AuthProvider>
         </LanguageProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,
