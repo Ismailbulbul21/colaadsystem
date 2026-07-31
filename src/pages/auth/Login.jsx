@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useLanguage } from '../../contexts/LanguageContext'
 import Button from '../../components/ui/Button'
 import { Input } from '../../components/ui/Field'
+import { BUNDLED_LOGO } from '../../lib/supabaseClient'
 import { HOME_BY_ROLE } from '../../constants'
 
 export default function Login() {
@@ -52,9 +53,11 @@ export default function Login() {
       {/* ---------- brand panel ---------- */}
       <div className="relative hidden flex-col justify-between bg-navy-900 p-12 lg:flex">
         <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 text-lg font-bold text-white">
-            CN
-          </div>
+          <img
+            src={BUNDLED_LOGO}
+            alt=""
+            className="h-12 w-12 rounded-xl bg-white object-contain p-1"
+          />
           <div>
             <p className="text-base font-semibold text-white">{t('app.name')}</p>
             <p className="text-xs text-navy-200">{t('app.system')}</p>
@@ -82,9 +85,7 @@ export default function Login() {
       <div className="flex items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-sm">
           <div className="mb-8 lg:hidden">
-            <div className="grid h-12 w-12 place-items-center rounded-xl bg-navy-900 text-lg font-bold text-white">
-              OL
-            </div>
+            <img src={BUNDLED_LOGO} alt="" className="h-14 w-14 object-contain" />
           </div>
 
           {/* Language can be switched before signing in */}

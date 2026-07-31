@@ -51,12 +51,25 @@ export function usernameToEmail(username) {
   return clean.includes('@') ? clean : `${clean}@${EMAIL_DOMAIN}`
 }
 
-/** Public URL for a file in the office-assets bucket. */
+/**
+ * Resolves a stored asset reference to something an <img> can use.
+ *
+ * Three forms are supported:
+ *   https://…   an external URL, used as-is
+ *   /logo.jpg   shipped with the app itself — no network round trip, and it
+ *               works on the login screen, which has no session and therefore
+ *               cannot read office_settings
+ *   branding/x  a path inside the public office-assets bucket
+ */
 export function assetUrl(path) {
   if (!path) return null
   if (path.startsWith('http')) return path
+  if (path.startsWith('/')) return path
   return supabase.storage.from('office-assets').getPublicUrl(path).data.publicUrl
 }
+
+/** The office logo bundled with the build; the fallback everywhere. */
+export const BUNDLED_LOGO = '/logo.jpg'
 
 /**
  * Client documents live in a PRIVATE bucket, so they are only ever reachable

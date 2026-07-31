@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useOfficeSettings } from '../contexts/OfficeSettingsContext'
 import { useT } from '../contexts/LanguageContext'
 import { NAV_ITEMS } from '../constants'
-import { assetUrl } from '../lib/supabaseClient'
+import { assetUrl, BUNDLED_LOGO } from '../lib/supabaseClient'
 
 // An explicit map instead of `import * as Icons`: a namespace import defeats
 // tree-shaking and drags all ~1500 lucide icons into the main bundle.
@@ -28,7 +28,8 @@ export default function Sidebar({ open, onClose, badges = {} }) {
   // A link the role cannot use is never rendered, so it cannot be discovered
   // by reading the DOM either.
   const items = NAV_ITEMS.filter((i) => i.roles.includes(role))
-  const logo = assetUrl(settings.logo_url)
+  // Settings may point elsewhere, but the office always has a logo to show.
+  const logo = assetUrl(settings.logo_url) || BUNDLED_LOGO
 
   return (
     <>
@@ -53,17 +54,11 @@ export default function Sidebar({ open, onClose, badges = {} }) {
 
         {/* ---------- office identity ---------- */}
         <div className="flex h-16 shrink-0 items-center gap-3 px-5">
-          {logo ? (
-            <img
-              src={logo}
-              alt=""
-              className="h-9 w-9 rounded-lg bg-white object-contain p-0.5 shadow-xs"
-            />
-          ) : (
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/10 text-[13px] font-bold tracking-tight text-white ring-1 ring-inset ring-white/15">
-              CN
-            </div>
-          )}
+          <img
+            src={logo}
+            alt=""
+            className="h-10 w-10 shrink-0 rounded-lg bg-white object-contain p-0.5 shadow-xs"
+          />
           <div className="min-w-0">
             <p className="truncate text-[13px] font-semibold leading-tight text-white">
               {settings.office_name || 'Colaad Notary'}
