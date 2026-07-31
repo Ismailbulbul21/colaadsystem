@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 import PageHeader from '../../components/ui/PageHeader'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
-import { Input, Textarea, Select, ReadOnlyMoney } from '../../components/ui/Field'
+import { Input, Select, ReadOnlyMoney } from '../../components/ui/Field'
 import DynamicServiceFields from '../../components/form/DynamicServiceFields'
 import { FormSkeleton } from '../../components/feedback/Skeleton'
 import { StatusBadge } from '../../components/ui/Badge'
@@ -19,9 +19,17 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useDebounce } from '../../hooks/useDebounce'
 import { friendlyError } from '../../utils/errors'
 import { qk, LONG_CACHE } from '../../lib/queryClient'
+import { MOGADISHU_DISTRICTS, ID_TYPES } from '../../constants'
 import { formatDate } from '../../utils/format'
 
-const EMPTY = { full_name: '', phone: '', national_id: '', address: '', service_id: '', notes: '' }
+const EMPTY = {
+  full_name: '',
+  phone: '',
+  id_type: '',
+  national_id: '',
+  address: '',
+  service_id: '',
+}
 
 export default function NewClient() {
   const navigate = useNavigate()
@@ -52,6 +60,12 @@ export default function NewClient() {
     () => services.data?.find((s) => s.id === form.service_id) ?? null,
     [services.data, form.service_id],
   )
+
+  // "Passport Number" reads better than a generic "ID Number" once chosen.
+  const idNumberLabel = useMemo(() => {
+    const t = ID_TYPES.find((x) => x.value === form.id_type)
+    return t ? `${t.label} Number` : 'Document Number'
+  }, [form.id_type])
 
   // ---------- duplicate warning ----------
   const debouncedName = useDebounce(form.full_name, 500)
@@ -93,6 +107,10 @@ export default function NewClient() {
     if (!form.phone.trim()) next.phone = 'Phone number is required.'
     else if (form.phone.trim().length < 7) next.phone = 'Enter a valid phone number.'
     if (!form.service_id) next.service_id = 'Choose a service.'
+    // A document type without its number is worse than recording neither.
+    if (form.id_type && !form.national_id.trim()) {
+      next.national_id = 'Enter the number on the document, or clear the type.'
+    }
 
     for (const f of fields.data ?? []) {
       if (f.is_required && !String(details[f.field_key] ?? '').trim()) {
@@ -237,27 +255,29 @@ export default function NewClient() {
                 error={errors.phone}
                 placeholder="+252 61 000 0000"
               />
-              <Input
-                label="National ID"
-                value={form.national_id}
-                onChange={(e) => setField('national_id', e.target.value)}
-                hint="Optional"
-              />
-              <Textarea
-                label="Address"
+              <Select
+                label="District"
+                placeholder="Choose a district…"
                 value={form.address}
                 onChange={(e) => setField('address', e.target.value)}
-                hint="Optional"
-                rows={2}
-                wrapperClassName="sm:col-span-2"
+                options={MOGADISHU_DISTRICTS.map((d) => ({ value: d, label: d }))}
+                hint="Degmada"
               />
-              <Textarea
-                label="Notes"
-                value={form.notes}
-                onChange={(e) => setField('notes', e.target.value)}
-                hint="Anything the ALT department or Finance should know"
-                rows={2}
-                wrapperClassName="sm:col-span-2"
+              <Select
+                label="Identification"
+                placeholder="Choose a document…"
+                value={form.id_type}
+                onChange={(e) => setField('id_type', e.target.value)}
+                options={ID_TYPES.map((t) => ({ value: t.value, label: `${t.label} — ${t.so}` }))}
+              />
+              <Input
+                label={idNumberLabel}
+                value={form.national_id}
+                onChange={(e) => setField('national_id', e.target.value)}
+                error={errors.national_id}
+                disabled={!form.id_type}
+                placeholder={form.id_type ? undefined : 'Choose a document first'}
+                hint={form.id_type ? 'The number on the document' : undefined}
               />
             </div>
           </div>

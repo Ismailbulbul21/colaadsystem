@@ -23,6 +23,7 @@ import { friendlyError } from '../../utils/errors'
 import { formatDateTime, formatFileSize } from '../../utils/format'
 import {
   PAYMENT_METHODS, DISCOUNT_REASONS, MAX_UPLOAD_BYTES, ALLOWED_DOCUMENT_TYPES,
+  ID_TYPE_LABELS,
 } from '../../constants'
 
 const TABS = ['Overview', 'Documents', 'Payments', 'Timeline']
@@ -240,10 +241,17 @@ export default function ClientProfile() {
             <h3 className="mb-4 text-sm font-semibold text-slate-700">General Information</h3>
             <dl className="space-y-2.5 text-sm">
               {[
-                ['Registration No', c.registration_no], ['Phone', c.phone],
-                ['National ID', c.national_id], ['Address', c.address],
-                ['Service', c.service_name_snapshot], ['Registered', formatDateTime(c.registered_at)],
-                ['Notes', c.notes],
+                ['Registration No', c.registration_no],
+                ['Phone', c.phone],
+                // Show which document the number belongs to, not just a number
+                [
+                  c.id_type ? `${ID_TYPE_LABELS[c.id_type] ?? 'Document'} Number` : 'Document Number',
+                  c.national_id,
+                ],
+                ['District', c.address],
+                ['Service', c.service_name_snapshot],
+                ['Registered', formatDateTime(c.registered_at)],
+                ...(c.notes ? [['Notes', c.notes]] : []),
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-4">
                   <dt className="text-slate-500">{k}</dt>

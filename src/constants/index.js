@@ -72,6 +72,42 @@ export const FIELD_TYPES = [
   { value: 'phone', label: 'Phone number' },
 ]
 
+/**
+ * Districts of Banadir (Mogadishu). Chosen from a list rather than typed so
+ * the same district is never spelled three different ways — which is what
+ * makes "clients by district" reporting possible later.
+ */
+export const MOGADISHU_DISTRICTS = [
+  'Boondheere',
+  'Cabdulcasiis',
+  'Daynille',
+  'Dharkenley',
+  'Garasbaaley',
+  'Gubadley',
+  'Hodan',
+  'Howl-Wadaag',
+  'Huriwaa',
+  'Kaaraan',
+  'Kaxda',
+  'Shangaani',
+  'Shibis',
+  'Waaberi',
+  'Wadajir',
+  'Wardhiigleey',
+  'Xamar Jajab',
+  'Xamar Weyne',
+  'Yaaqshiid',
+]
+
+/** Accepted forms of identification. The number is entered alongside. */
+export const ID_TYPES = [
+  { value: 'national_id', label: 'National ID', so: 'Aqoonsi Qaran' },
+  { value: 'passport', label: 'Passport', so: 'Baasaboor' },
+  { value: 'licence', label: 'Driving Licence', so: 'Liisanka Darawalnimo' },
+]
+
+export const ID_TYPE_LABELS = Object.fromEntries(ID_TYPES.map((t) => [t.value, t.label]))
+
 export const DISCOUNT_REASONS = [
   'Repeat Customer',
   'Elderly Client',

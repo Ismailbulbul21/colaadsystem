@@ -80,10 +80,10 @@ export async function createClient({ client, details }) {
     .insert({
       full_name: client.full_name.trim(),
       phone: client.phone.trim(),
+      id_type: client.id_type || null,
       national_id: client.national_id?.trim() || null,
-      address: client.address?.trim() || null,
+      address: client.address?.trim() || null, // Banadir district
       service_id: client.service_id,
-      notes: client.notes?.trim() || null,
       status: 'waiting_alt',
       // price columns intentionally omitted
     })
