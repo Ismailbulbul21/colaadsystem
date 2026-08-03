@@ -306,9 +306,11 @@ export default function NewClient() {
               value={form.service_id}
               onChange={(e) => handleServiceChange(e.target.value)}
               error={errors.service_id}
+              // Category first: several categories contain a type called
+              // "Nooc kale", so the group is what tells them apart.
               options={(services.data ?? []).map((s) => ({
                 value: s.id,
-                label: `${s.name}${s.category ? ` — ${s.category}` : ''}`,
+                label: s.category ? `${s.category} — ${s.name}` : s.name,
               }))}
             />
 

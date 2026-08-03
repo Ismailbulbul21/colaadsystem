@@ -21,12 +21,65 @@ export const missingConfigKeys = [
 
 // Harmless placeholders keep every `import { supabase }` working so the app can
 // render the setup screen instead of collapsing at import time.
+const REMEMBER_KEY = 'colaad-remember'
+
+export const getRememberMe = () => {
+  try {
+    return localStorage.getItem(REMEMBER_KEY) !== 'false'
+  } catch {
+    return true
+  }
+}
+
+export const setRememberMe = (value) => {
+  try {
+    localStorage.setItem(REMEMBER_KEY, value ? 'true' : 'false')
+  } catch {
+    /* private browsing */
+  }
+}
+
+/**
+ * "Remember me" decides WHERE the session token is kept.
+ *   ticked   -> localStorage, so closing the browser keeps you signed in
+ *   unticked -> sessionStorage, so the session dies with the tab
+ * Shared computers at the front desk are the reason this matters.
+ */
+const rememberAwareStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key) ?? sessionStorage.getItem(key)
+    } catch {
+      return null
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      const store = getRememberMe() ? localStorage : sessionStorage
+      const other = getRememberMe() ? sessionStorage : localStorage
+      other.removeItem(key) // never leave a stale copy in the other store
+      store.setItem(key, value)
+    } catch {
+      /* private browsing */
+    }
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key)
+      sessionStorage.removeItem(key)
+    } catch {
+      /* private browsing */
+    }
+  },
+}
+
 export const supabase = createClient(url || 'https://placeholder.supabase.co', anonKey || 'placeholder-key', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: false,
     storageKey: 'olod-auth',
+    storage: rememberAwareStorage,
   },
   db: { schema: 'public' },
   realtime: { params: { eventsPerSecond: 5 } },

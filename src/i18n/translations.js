@@ -22,9 +22,15 @@ export const translations = {
     // ---------- login ----------
     'auth.signIn': 'Soo gal',
     'auth.signInHint': 'Isticmaal magaca iyo furaha uu ku siiyay Maamulaha.',
+    'auth.welcome': 'Ku Soo Dhawoow',
+    'auth.welcomeHint': 'Fadlan geli akoonkaaga si aad u isticmaasho nidaamka Colaad Notary.',
     'auth.username': 'Magaca isticmaalaha',
-    'auth.usernamePlaceholder': 'tusaale: reception',
+    'auth.usernamePlaceholder': 'Geli username',
     'auth.password': 'Furaha sirta',
+    'auth.passwordPlaceholder': 'Geli password',
+    'auth.rememberMe': 'I xasuuso',
+    'auth.forgotHelp':
+      'Maamulaha kaliya ayaa furaha dib u dejin kara. Fadlan la xiriir Maamulaha xafiiska.',
     'auth.signOut': 'Ka bax',
     'auth.forgot': 'Ma illowday furahaaga? Maamulaha kaliya ayaa dib u dejin kara.',
     'auth.lockWarning': 'Shan isku day oo khaldan ayaa xisaabta xannibi doona.',
@@ -171,9 +177,15 @@ export const translations = {
 
     'auth.signIn': 'Sign in',
     'auth.signInHint': 'Use the username and password given to you by the Administrator.',
+    'auth.welcome': 'Welcome',
+    'auth.welcomeHint': 'Please sign in to your account to use the Colaad Notary system.',
     'auth.username': 'Username',
-    'auth.usernamePlaceholder': 'e.g. reception',
+    'auth.usernamePlaceholder': 'Enter username',
     'auth.password': 'Password',
+    'auth.passwordPlaceholder': 'Enter password',
+    'auth.rememberMe': 'Remember me',
+    'auth.forgotHelp':
+      'Only the Administrator can reset a password. Please contact the office Administrator.',
     'auth.signOut': 'Sign out',
     'auth.forgot': 'Forgot your password? Only the Administrator can reset it.',
     'auth.lockWarning': 'Five wrong attempts will lock the account.',
