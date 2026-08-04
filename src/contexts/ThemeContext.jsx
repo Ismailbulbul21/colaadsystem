@@ -9,12 +9,15 @@ export const THEMES = [
   { code: 'system', label: 'System' },
 ]
 
+/** Dark is the office default; a saved choice always wins over it. */
+export const DEFAULT_THEME = 'dark'
+
 function readStored() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
-    return ['light', 'dark', 'system'].includes(saved) ? saved : 'light'
+    return ['light', 'dark', 'system'].includes(saved) ? saved : DEFAULT_THEME
   } catch {
-    return 'light'
+    return DEFAULT_THEME
   }
 }
 

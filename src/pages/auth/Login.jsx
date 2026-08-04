@@ -69,12 +69,12 @@ export default function Login() {
         <div className="flex w-full flex-col lg:flex-row">
 
           {/* ================= left: identity ================= */}
-          <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-b from-white to-navy-50 p-10 lg:flex">
+          <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-b from-surface to-surface-sunken p-10 lg:flex">
             {/* faint map of Somalia behind the panel */}
             <svg
               viewBox="0 0 200 260"
               aria-hidden
-              className="pointer-events-none absolute right-2 top-16 h-72 w-56 text-navy-900/[0.05]"
+              className="pointer-events-none absolute right-2 top-16 h-72 w-56 text-navy-500/[0.07]"
               fill="currentColor"
             >
               <path d="M40 20 L70 12 95 30 118 25 140 45 168 60 176 92 150 120 128 150 118 186 96 214 74 236 60 224 66 190 52 160 44 122 30 90 34 52 Z" />
@@ -83,7 +83,7 @@ export default function Login() {
             <div className="relative">
               <img src={BUNDLED_LOGO} alt="Colaad Notary" className="h-28 w-auto object-contain" />
 
-              <h1 className="mt-8 text-3xl font-semibold leading-tight tracking-tight text-navy-900">
+              <h1 className="mt-8 text-3xl font-semibold leading-tight tracking-tight text-ink-900">
                 Colaad Notary
                 <br />
                 Management System
@@ -107,7 +107,7 @@ export default function Login() {
                 <div key={title} className="flex items-start gap-2.5">
                   <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brass-500" strokeWidth={2} />
                   <div className="min-w-0">
-                    <p className="text-[13px] font-semibold leading-tight text-navy-900">{title}</p>
+                    <p className="text-[13px] font-semibold leading-tight text-ink-900">{title}</p>
                     <p className="text-2xs leading-tight text-ink-400">{sub}</p>
                   </div>
                 </div>
@@ -159,8 +159,8 @@ export default function Login() {
                   className="mx-auto mb-6 h-20 w-auto object-contain lg:hidden"
                 />
 
-                <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-navy-50">
-                  <User className="h-8 w-8 text-navy-600" strokeWidth={1.8} />
+                <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-navy-50 dark:bg-navy-800/40">
+                  <User className="h-8 w-8 text-navy-600 dark:text-navy-200" strokeWidth={1.8} />
                 </div>
 
                 <h2 className="mt-5 text-center text-2xl font-semibold tracking-tight text-ink-900">
@@ -230,25 +230,15 @@ export default function Login() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3">
-                    <label className="flex cursor-pointer items-center gap-2 text-[13px] text-ink-600">
-                      <input
-                        type="checkbox"
-                        checked={remember}
-                        onChange={(e) => setRemember(e.target.checked)}
-                        className="h-4 w-4 rounded border-ink-300 text-navy-700 focus:ring-navy-500"
-                      />
-                      {t('auth.rememberMe')}
-                    </label>
-
-                    <button
-                      type="button"
-                      onClick={() => setError(t('auth.forgotHelp'))}
-                      className="text-[13px] font-medium text-navy-600 hover:underline"
-                    >
-                      {t('auth.forgot')}
-                    </button>
-                  </div>
+                  <label className="flex cursor-pointer items-center gap-2 text-[13px] text-ink-600">
+                    <input
+                      type="checkbox"
+                      checked={remember}
+                      onChange={(e) => setRemember(e.target.checked)}
+                      className="h-4 w-4 rounded border-ink-300 text-navy-700 focus:ring-navy-500"
+                    />
+                    {t('auth.rememberMe')}
+                  </label>
 
                   <Button
                     type="submit"
@@ -263,6 +253,9 @@ export default function Login() {
 
                 <p className="mt-6 text-center text-2xs leading-relaxed text-ink-400">
                   {t('auth.noSignup')}
+                </p>
+                <p className="mt-1.5 text-center text-2xs text-ink-400">
+                  {t('auth.lockWarning')}
                 </p>
               </div>
             </div>

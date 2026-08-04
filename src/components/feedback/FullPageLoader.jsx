@@ -8,7 +8,7 @@ export default function FullPageLoader({ label }) {
       <div className="flex flex-col items-center gap-4">
         <div className="relative h-14 w-14">
           <div className="absolute inset-0 grid place-items-center rounded-2xl bg-white p-1.5 shadow-card">
-            <img src="/logo.jpg" alt="" className="h-full w-full object-contain" />
+            <img src="/logo.png" alt="" className="h-full w-full object-contain" />
           </div>
           <div className="absolute -inset-1.5 rounded-2xl border-2 border-navy-200 border-t-navy-700 animate-spin" />
         </div>

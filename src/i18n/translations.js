@@ -29,10 +29,7 @@ export const translations = {
     'auth.password': 'Furaha sirta',
     'auth.passwordPlaceholder': 'Geli password',
     'auth.rememberMe': 'I xasuuso',
-    'auth.forgotHelp':
-      'Maamulaha kaliya ayaa furaha dib u dejin kara. Fadlan la xiriir Maamulaha xafiiska.',
     'auth.signOut': 'Ka bax',
-    'auth.forgot': 'Ma illowday furahaaga? Maamulaha kaliya ayaa dib u dejin kara.',
     'auth.lockWarning': 'Shan isku day oo khaldan ayaa xisaabta xannibi doona.',
     'auth.enterBoth': 'Geli magacaaga iyo furahaaga.',
     'auth.noSignup': 'Xisaabaha waxaa sameeya Maamulaha. Isdiiwaangelin bannaan ma jirto.',
@@ -184,10 +181,7 @@ export const translations = {
     'auth.password': 'Password',
     'auth.passwordPlaceholder': 'Enter password',
     'auth.rememberMe': 'Remember me',
-    'auth.forgotHelp':
-      'Only the Administrator can reset a password. Please contact the office Administrator.',
     'auth.signOut': 'Sign out',
-    'auth.forgot': 'Forgot your password? Only the Administrator can reset it.',
     'auth.lockWarning': 'Five wrong attempts will lock the account.',
     'auth.enterBoth': 'Enter your username and password.',
     'auth.noSignup': 'Accounts are created by the Administrator. There is no public sign-up.',

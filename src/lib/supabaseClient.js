@@ -122,7 +122,7 @@ export function assetUrl(path) {
 }
 
 /** The office logo bundled with the build; the fallback everywhere. */
-export const BUNDLED_LOGO = '/logo.jpg'
+export const BUNDLED_LOGO = '/logo.png'
 
 /**
  * Client documents live in a PRIVATE bucket, so they are only ever reachable
