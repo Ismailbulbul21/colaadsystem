@@ -70,16 +70,6 @@ export default function Login() {
 
           {/* ================= left: identity ================= */}
           <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-b from-surface to-surface-sunken p-10 lg:flex">
-            {/* faint map of Somalia behind the panel */}
-            <svg
-              viewBox="0 0 200 260"
-              aria-hidden
-              className="pointer-events-none absolute right-2 top-16 h-72 w-56 text-navy-500/[0.07]"
-              fill="currentColor"
-            >
-              <path d="M40 20 L70 12 95 30 118 25 140 45 168 60 176 92 150 120 128 150 118 186 96 214 74 236 60 224 66 190 52 160 44 122 30 90 34 52 Z" />
-            </svg>
-
             <div className="relative">
               <img src={BUNDLED_LOGO} alt="Colaad Notary" className="h-28 w-auto object-contain" />
 
@@ -95,10 +85,19 @@ export default function Login() {
                 Fast <span className="text-brass-500">•</span> Secure{' '}
                 <span className="text-brass-500">•</span> Trusted Legal Services
               </p>
+
+              {/* the office's own letterhead photo: pen, paper, the seal
+                  watermark — shown whole, not stretched or cropped, so
+                  nothing in it is cut off */}
+              <img
+                src="/login-pen.jpg"
+                alt=""
+                className="mt-7 w-full rounded-xl object-cover shadow-card ring-1 ring-black/5"
+              />
             </div>
 
             {/* three assurances along the bottom */}
-            <div className="relative mt-10 grid grid-cols-3 gap-4 border-t border-surface-border pt-6">
+            <div className="relative mt-6 grid grid-cols-3 gap-4 border-t border-surface-border pt-6">
               {[
                 { icon: ShieldCheck, title: 'Secure', sub: 'Data Protection' },
                 { icon: Clock, title: 'Efficient', sub: 'Save Time' },
