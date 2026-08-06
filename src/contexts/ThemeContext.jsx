@@ -9,8 +9,8 @@ export const THEMES = [
   { code: 'system', label: 'System' },
 ]
 
-/** Dark is the office default; a saved choice always wins over it. */
-export const DEFAULT_THEME = 'dark'
+/** Light is the office default; a saved choice always wins over it. */
+export const DEFAULT_THEME = 'light'
 
 function readStored() {
   try {

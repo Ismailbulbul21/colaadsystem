@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  Eye, EyeOff, Lock, User, AlertCircle, ShieldCheck, Clock, Users, Phone, Mail, MapPin, Moon, Sun,
+  Eye, EyeOff, Lock, User, AlertCircle, Phone, Mail, MapPin, Moon, Sun,
 } from 'lucide-react'
 
 import { useAuth } from '../../contexts/AuthContext'
@@ -69,49 +69,17 @@ export default function Login() {
         <div className="flex w-full flex-col lg:flex-row">
 
           {/* ================= left: identity ================= */}
-          <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-b from-surface to-surface-sunken p-10 lg:flex">
-            <div className="relative">
-              <img src={BUNDLED_LOGO} alt="Colaad Notary" className="h-28 w-auto object-contain" />
-
-              <h1 className="mt-8 text-3xl font-semibold leading-tight tracking-tight text-ink-900">
-                Colaad Notary
-                <br />
-                Management System
-              </h1>
-
-              <div className="mt-5 h-px w-24 bg-gradient-to-r from-brass-400 to-transparent" />
-
-              <p className="mt-5 text-sm font-medium text-ink-500">
-                Fast <span className="text-brass-500">•</span> Secure{' '}
-                <span className="text-brass-500">•</span> Trusted Legal Services
-              </p>
-
-              {/* the office's own letterhead photo: pen, paper, the seal
-                  watermark — shown whole, not stretched or cropped, so
-                  nothing in it is cut off */}
-              <img
-                src="/login-pen.jpg"
-                alt=""
-                className="mt-7 w-full rounded-xl object-cover shadow-card ring-1 ring-black/5"
-              />
-            </div>
-
-            {/* three assurances along the bottom */}
-            <div className="relative mt-6 grid grid-cols-3 gap-4 border-t border-surface-border pt-6">
-              {[
-                { icon: ShieldCheck, title: 'Secure', sub: 'Data Protection' },
-                { icon: Clock, title: 'Efficient', sub: 'Save Time' },
-                { icon: Users, title: 'Reliable', sub: 'Trusted Service' },
-              ].map(({ icon: Icon, title, sub }) => (
-                <div key={title} className="flex items-start gap-2.5">
-                  <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brass-500" strokeWidth={2} />
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-semibold leading-tight text-ink-900">{title}</p>
-                    <p className="text-2xs leading-tight text-ink-400">{sub}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* The office's own artwork, used exactly as supplied: logo, title,
+              tagline, the pen photograph, the Somalia and scales watermarks,
+              and the navy assurance strip are all part of the image. Nothing
+              is redrawn on top of it, so it cannot drift from the design.
+              The sign-in form opposite stays live and translatable. */}
+          <div className="relative hidden w-1/2 overflow-hidden lg:block">
+            <img
+              src="/login-panel.jpg"
+              alt="Colaad Notary — Xalaal, Xaq, Adeega Sharciga"
+              className="h-full w-full object-cover object-center"
+            />
           </div>
 
           {/* ================= right: sign in ================= */}
