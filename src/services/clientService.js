@@ -85,7 +85,14 @@ export async function createClient({ client, details }) {
       address: client.address?.trim() || null, // Banadir district
       service_id: client.service_id,
       status: 'waiting_alt',
-      // price columns intentionally omitted
+      // The office asked for the amount to be changeable per client. The
+      // trigger still falls back to the service price when this is null, and
+      // still rejects a negative figure.
+      original_price:
+        client.original_price === '' || client.original_price == null
+          ? null
+          : Number(client.original_price),
+      // discount_amount stays out: only approve_discount() may set one
     })
     .select('id, registration_no, final_price, original_price')
     .single()

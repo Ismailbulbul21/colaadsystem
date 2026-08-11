@@ -108,6 +108,14 @@ export const ID_TYPES = [
 
 export const ID_TYPE_LABELS = Object.fromEntries(ID_TYPES.map((t) => [t.value, t.label]))
 
+/** Used to tag an expense or income to the part of the office it belongs to. */
+export const DEPARTMENTS = [
+  { value: 'Registration', label: 'Registration' },
+  { value: 'ALT', label: 'ALT' },
+  { value: 'Finance', label: 'Finance' },
+  { value: 'Administration', label: 'Administration' },
+]
+
 export const DISCOUNT_REASONS = [
   'Repeat Customer',
   'Elderly Client',

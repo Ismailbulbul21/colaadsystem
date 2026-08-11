@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Save, Lock, AlertTriangle, UserPlus, Info } from 'lucide-react'
+import { Save, AlertTriangle, UserPlus, Info } from 'lucide-react'
 import toast from 'react-hot-toast'
+import clsx from 'clsx'
 
 import PageHeader from '../../components/ui/PageHeader'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
-import { Input, Select, ReadOnlyMoney } from '../../components/ui/Field'
+import { Input, Select } from '../../components/ui/Field'
 import DynamicServiceFields from '../../components/form/DynamicServiceFields'
 import { FormSkeleton } from '../../components/feedback/Skeleton'
 import { StatusBadge } from '../../components/ui/Badge'
@@ -29,6 +30,7 @@ const EMPTY = {
   national_id: '',
   address: '',
   service_id: '',
+  original_price: '',
 }
 
 export default function NewClient() {
@@ -59,6 +61,32 @@ export default function NewClient() {
   const selectedService = useMemo(
     () => services.data?.find((s) => s.id === form.service_id) ?? null,
     [services.data, form.service_id],
+  )
+
+  // Grouped for the dropdown, keeping the order the office listed them in.
+  const servicesByCategory = useMemo(() => {
+    const groups = new Map()
+    for (const s of services.data ?? []) {
+      const key = s.category || 'Kale'
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key).push(s)
+    }
+    return [...groups.entries()]
+  }, [services.data])
+
+  const priceChanged =
+    selectedService != null &&
+    form.original_price !== '' &&
+    Number(form.original_price) !== Number(selectedService.price)
+
+  /**
+   * A sale or transfer is between two people, so those services collect the
+   * parties instead of one "client". The client row still needs a name and a
+   * phone, and Party 1 is the one giving/selling — so that is who it takes.
+   */
+  const isTwoParty = useMemo(
+    () => (fields.data ?? []).some((f) => f.field_key === 'p1_full_name'),
+    [fields.data],
   )
 
   // "Passport Number" reads better than a generic "ID Number" once chosen.
@@ -95,21 +123,40 @@ export default function NewClient() {
     setErrors((e) => ({ ...e, [key]: undefined }))
   }
 
-  // Changing service resets the dynamic answers: the old fields no longer exist.
+  // Changing service resets the dynamic answers: the old fields no longer
+  // exist. The amount refills from the newly chosen service's price.
   const handleServiceChange = (id) => {
-    setField('service_id', id)
+    const svc = services.data?.find((s) => s.id === id)
+    setForm((prev) => ({
+      ...prev,
+      service_id: id,
+      original_price: svc ? String(svc.price) : '',
+    }))
     setDetails({})
+    setErrors({})
   }
 
   const validate = () => {
     const next = {}
-    if (!form.full_name.trim()) next.full_name = 'Client name is required.'
-    if (!form.phone.trim()) next.phone = 'Phone number is required.'
-    else if (form.phone.trim().length < 7) next.phone = 'Enter a valid phone number.'
     if (!form.service_id) next.service_id = 'Choose a service.'
-    // A document type without its number is worse than recording neither.
-    if (form.id_type && !form.national_id.trim()) {
-      next.national_id = 'Enter the number on the document, or clear the type.'
+
+    if (form.original_price === '' || Number.isNaN(Number(form.original_price))) {
+      next.original_price = 'Enter the amount.'
+    } else if (Number(form.original_price) < 0) {
+      next.original_price = 'The amount cannot be negative.'
+    }
+
+    // On a two-party service there is no separate "client" — Party 1 is the
+    // client, and those fields are validated with the rest of the section
+    // below, so these checks would be asking for the same thing twice.
+    if (!isTwoParty) {
+      if (!form.full_name.trim()) next.full_name = 'Client name is required.'
+      if (!form.phone.trim()) next.phone = 'Phone number is required.'
+      else if (form.phone.trim().length < 7) next.phone = 'Enter a valid phone number.'
+      // A document type without its number is worse than recording neither.
+      if (form.id_type && !form.national_id.trim()) {
+        next.national_id = 'Enter the number on the document, or clear the type.'
+      }
     }
 
     for (const f of fields.data ?? []) {
@@ -124,7 +171,18 @@ export default function NewClient() {
   const save = useMutation({
     mutationFn: () =>
       createClient({
-        client: form,
+        // On a two-party service the client IS Party 1, so the record takes
+        // its name, phone and ID from there rather than from a duplicate
+        // "Client Information" block the clerk would have to fill twice.
+        client: isTwoParty
+          ? {
+              ...form,
+              full_name: (details.p1_full_name ?? '').trim(),
+              phone: (details.p1_phone ?? '').trim(),
+              national_id: (details.p1_id_number ?? '').trim() || null,
+              id_type: null,
+            }
+          : form,
         details: (fields.data ?? []).map((f) => ({
           field_key: f.field_key,
           label: f.label,
@@ -229,8 +287,11 @@ export default function NewClient() {
 
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
-          {/* ---------- client ---------- */}
-          <div className="card p-6">
+          {/* ---------- client ----------
+              Hidden for sales and transfers: those are between two people, so
+              the two party sections below replace this rather than asking for
+              the same person twice. */}
+          <div className={clsx('card p-6', isTwoParty && 'hidden')}>
             <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
               <UserPlus className="h-4 w-4 text-slate-400" /> Client Information
             </h3>
@@ -299,6 +360,9 @@ export default function NewClient() {
           <div className="card p-6">
             <h3 className="mb-4 text-sm font-semibold text-slate-700">Service</h3>
 
+            {/* Grouped by category so a clerk can jump straight to the group
+                they want. Several categories contain a type called "Nooc
+                kale", so the group heading is what tells them apart. */}
             <Select
               label="Service"
               required
@@ -306,27 +370,39 @@ export default function NewClient() {
               value={form.service_id}
               onChange={(e) => handleServiceChange(e.target.value)}
               error={errors.service_id}
-              // Category first: several categories contain a type called
-              // "Nooc kale", so the group is what tells them apart.
-              options={(services.data ?? []).map((s) => ({
-                value: s.id,
-                label: s.category ? `${s.category} — ${s.name}` : s.name,
-              }))}
-            />
+            >
+              {servicesByCategory.map(([category, list]) => (
+                <optgroup key={category} label={category}>
+                  {list.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} — {currency}
+                      {Number(s.price).toFixed(2)}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </Select>
 
             {selectedService && (
               <>
                 <div className="mt-5">
-                  <ReadOnlyMoney
-                    label="Service Price"
-                    value={selectedService.price}
-                    symbol={currency}
-                    tone="locked"
+                  {/* The office asked for this to be editable per client. The
+                      service price fills it in; the clerk can change it. */}
+                  <Input
+                    label="Amount"
+                    required
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.original_price}
+                    onChange={(e) => setField('original_price', e.target.value)}
+                    error={errors.original_price}
+                    hint={
+                      priceChanged
+                        ? `List price is ${currency}${Number(selectedService.price).toFixed(2)}`
+                        : 'Filled from the service price — change it if needed'
+                    }
                   />
-                  <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-500">
-                    <Lock className="mt-0.5 h-3 w-3 shrink-0" />
-                    Prices are fixed. Only an Administrator can change them.
-                  </p>
                 </div>
 
                 {selectedService.description && (

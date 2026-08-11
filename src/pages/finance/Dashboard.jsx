@@ -2,12 +2,14 @@ import { lazy, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import {
-  Wallet, TrendingUp, TrendingDown, Scale, ReceiptText, CalendarRange, Plus,
+  Wallet, TrendingUp, TrendingDown, Scale, ReceiptText, CalendarRange, FileText,
 } from 'lucide-react'
 
 import PageHeader from '../../components/ui/PageHeader'
 import StatCard from '../../components/dashboard/StatCard'
+import ExpenseDonut from '../../components/dashboard/ExpenseDonut'
 import Button from '../../components/ui/Button'
+import { useAuth } from '../../contexts/AuthContext'
 import { CardsSkeleton, TableSkeleton, ChartSkeleton } from '../../components/feedback/Skeleton'
 import { EmptyState, ErrorState } from '../../components/feedback/States'
 import { fetchFinanceStats } from '../../services/statsService'
@@ -22,10 +24,36 @@ const IncomeChart = lazy(() => import('../../components/dashboard/IncomeChart'))
 
 export default function FinanceDashboard() {
   const { money } = useOfficeSettings()
+  const { profile } = useAuth()
 
   const stats = useQuery({
     queryKey: ['stats', 'finance'],
     queryFn: fetchFinanceStats,
+    ...DASHBOARD_CACHE,
+  })
+
+  // This month's expenses, grouped by category, for the donut.
+  const expenseByCategory = useQuery({
+    queryKey: ['stats', 'expenses-by-category'],
+    queryFn: async () => {
+      const from = new Date()
+      from.setDate(1)
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('amount, category_name_snapshot')
+        .is('deleted_at', null)
+        .gte('expense_date', from.toISOString().slice(0, 10))
+      if (error) throw error
+
+      const totals = new Map()
+      for (const row of data ?? []) {
+        const key = row.category_name_snapshot || 'Other'
+        totals.set(key, (totals.get(key) ?? 0) + Number(row.amount))
+      }
+      return [...totals.entries()]
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+    },
     ...DASHBOARD_CACHE,
   })
 
@@ -77,20 +105,26 @@ export default function FinanceDashboard() {
     <>
       <PageHeader
         title="Finance Dashboard"
-        description="Receive payments, print receipts and keep the office books accurate."
+        description={`Welcome back, ${profile?.full_name ?? 'Finance'}`}
         actions={
-          <>
-            <Link to="/finance/expenses">
-              <Button variant="secondary" icon={Plus}>
-                Record Expense
-              </Button>
-            </Link>
-            <Link to="/finance/pending">
-              <Button icon={Wallet} size="lg">
-                Pending Payments
-              </Button>
-            </Link>
-          </>
+          // The four things Finance does all day, one click from anywhere.
+          <div className="flex flex-wrap gap-2">
+            {[
+              { to: '/finance/invoices/new', label: 'Create Invoice', icon: FileText, cls: 'bg-navy-700 hover:bg-navy-800' },
+              { to: '/finance/pending', label: 'Receive Payment', icon: Wallet, cls: 'bg-emerald-600 hover:bg-emerald-700' },
+              { to: '/finance/income/new', label: 'Record Income', icon: TrendingUp, cls: 'bg-violet-600 hover:bg-violet-700' },
+              { to: '/finance/expenses', label: 'Record Expense', icon: TrendingDown, cls: 'bg-orange-500 hover:bg-orange-600' },
+            ].map(({ to, label, icon: Icon, cls }) => (
+              <Link key={to} to={to}>
+                <button
+                  type="button"
+                  className={`inline-flex h-10 items-center gap-2 rounded-lg px-4 text-[13px] font-medium text-white shadow-xs transition-all duration-150 active:scale-[0.985] ${cls}`}
+                >
+                  <Icon className="h-4 w-4" /> {label}
+                </button>
+              </Link>
+            ))}
+          </div>
         }
       />
 
@@ -156,6 +190,18 @@ export default function FinanceDashboard() {
           <Suspense fallback={<ChartSkeleton />}>
             <IncomeChart />
           </Suspense>
+
+          <div className="mt-5 card p-5">
+            <div className="mb-4 flex items-baseline justify-between gap-3">
+              <h3 className="text-sm font-semibold text-ink-700">Expenses by Category</h3>
+              <span className="text-xs text-ink-400">This month</span>
+            </div>
+            <ExpenseDonut
+              data={expenseByCategory.data ?? []}
+              loading={expenseByCategory.isLoading}
+              money={money}
+            />
+          </div>
 
           <div className="mt-5 card overflow-hidden">
             <div className="flex items-center justify-between border-b border-surface-border px-5 py-3.5">

@@ -12,7 +12,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { useTableState } from '../../hooks/useTableState'
 import { useOfficeSettings } from '../../contexts/OfficeSettingsContext'
 import { formatDate, todayInput } from '../../utils/format'
-import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from '../../constants'
+import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS, DEPARTMENTS } from '../../constants'
 import { friendlyError } from '../../utils/errors'
 import { LONG_CACHE } from '../../lib/queryClient'
 
@@ -64,24 +64,43 @@ export default function Expenses() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const category = categories.data?.find((c) => c.id === editing.category_id)
-      const payload = {
-        category_id: editing.category_id,
-        category_name_snapshot: category?.name ?? 'Uncategorised',
-        description: editing.description.trim(),
-        amount: Number(editing.amount),
-        payment_method: editing.payment_method,
-        expense_date: editing.expense_date,
-        receipt_ref: editing.receipt_ref || null,
-        notes: editing.notes || null,
-      }
+      // Editing an existing row is a plain update; a NEW expense goes through
+      // record_expense() so it is allocated an EXP- number under the same row
+      // lock every other reference number uses.
       if (editing.id) {
-        const { error } = await supabase.from('expenses').update(payload).eq('id', editing.id)
+        const category = categories.data?.find((c) => c.id === editing.category_id)
+        const { error } = await supabase
+          .from('expenses')
+          .update({
+            category_id: editing.category_id,
+            category_name_snapshot: category?.name ?? 'Uncategorised',
+            description: editing.description.trim(),
+            amount: Number(editing.amount),
+            payment_method: editing.payment_method,
+            expense_date: editing.expense_date,
+            paid_to: editing.paid_to || null,
+            department: editing.department || null,
+            receipt_ref: editing.receipt_ref || null,
+            notes: editing.notes || null,
+          })
+          .eq('id', editing.id)
         if (error) throw error
-      } else {
-        const { error } = await supabase.from('expenses').insert(payload)
-        if (error) throw error
+        return
       }
+
+      const { error } = await supabase.rpc('record_expense', {
+        p_category_id: editing.category_id,
+        p_description: editing.description.trim(),
+        p_amount: Number(editing.amount),
+        p_method: editing.payment_method,
+        p_expense_date: editing.expense_date,
+        p_paid_to: editing.paid_to || null,
+        p_department: editing.department || null,
+        p_reference_no: editing.receipt_ref || null,
+        p_notes: editing.notes || null,
+        p_proof_url: null,
+      })
+      if (error) throw error
     },
     onSuccess: () => {
       toast.success(editing.id ? 'Expense updated' : 'Expense recorded')
@@ -93,6 +112,7 @@ export default function Expenses() {
   })
 
   const columns = [
+    { key: 'expense_no', header: 'No.', className: 'tabular text-xs', render: (r) => r.expense_no ?? '—' },
     { key: 'expense_date', header: 'Date', sortable: true, render: (r) => formatDate(r.expense_date) },
     { key: 'category_name_snapshot', header: 'Category' },
     { key: 'description', header: 'Description' },
@@ -172,7 +192,9 @@ export default function Expenses() {
             <Input label="Description" required value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} wrapperClassName="sm:col-span-2" />
             <Select label="Payment method" value={editing.payment_method} onChange={(e) => setEditing({ ...editing, payment_method: e.target.value })} options={PAYMENT_METHODS} />
             <Input label="Expense date" type="date" value={editing.expense_date} onChange={(e) => setEditing({ ...editing, expense_date: e.target.value })} />
-            <Input label="Receipt reference" value={editing.receipt_ref ?? ''} onChange={(e) => setEditing({ ...editing, receipt_ref: e.target.value })} hint="Optional" wrapperClassName="sm:col-span-2" />
+            <Input label="Paid To / Vendor" value={editing.paid_to ?? ''} onChange={(e) => setEditing({ ...editing, paid_to: e.target.value })} hint="Who received the money" />
+            <Select label="Department" placeholder="None" value={editing.department ?? ''} onChange={(e) => setEditing({ ...editing, department: e.target.value })} options={DEPARTMENTS} hint="Optional" />
+            <Input label="Reference No." value={editing.receipt_ref ?? ''} onChange={(e) => setEditing({ ...editing, receipt_ref: e.target.value })} hint="Optional" wrapperClassName="sm:col-span-2" />
             <Textarea label="Notes" value={editing.notes ?? ''} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} rows={2} wrapperClassName="sm:col-span-2" />
           </div>
         )}

@@ -20,6 +20,8 @@ const PendingDiscounts = lazy(() => import('./pages/admin/PendingDiscounts'))
 const OfficeSettings   = lazy(() => import('./pages/admin/OfficeSettings'))
 const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
 const Backup           = lazy(() => import('./pages/admin/Backup'))
+const CreateInvoice    = lazy(() => import('./pages/finance/CreateInvoice'))
+const RecordIncome     = lazy(() => import('./pages/finance/RecordIncome'))
 
 const RegistrationDashboard = lazy(() => import('./pages/registration/Dashboard'))
 const NewClient             = lazy(() => import('./pages/registration/NewClient'))
@@ -118,6 +120,8 @@ export default function App() {
             <Route path="/finance/pending" element={<PendingPayments />} />
             <Route path="/finance/receipts" element={<Receipts />} />
             <Route path="/finance/invoices" element={<Invoices />} />
+            <Route path="/finance/invoices/new" element={<CreateInvoice />} />
+            <Route path="/finance/income/new" element={<RecordIncome />} />
             <Route path="/finance/expenses" element={<Expenses />} />
             <Route path="/finance/reports" element={<Reports />} />
           </Route>
