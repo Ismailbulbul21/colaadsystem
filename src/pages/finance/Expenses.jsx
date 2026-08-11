@@ -26,6 +26,8 @@ export default function Expenses() {
   const { money } = useOfficeSettings()
   const table = useTableState({ defaultSort: { key: 'expense_date', dir: 'desc' } })
   const [editing, setEditing] = useState(null)
+  const [addingCategory, setAddingCategory] = useState(false)
+  const [newCategory, setNewCategory] = useState('')
   const f = table.filters
 
   const categories = useQuery({
@@ -60,6 +62,32 @@ export default function Expenses() {
       return { rows: data ?? [], total: count ?? 0 }
     },
     keepPreviousData: true,
+  })
+
+  /** Creates the category and selects it, so the clerk carries straight on. */
+  const addCategory = useMutation({
+    mutationFn: async (name) => {
+      const existing = categories.data?.find(
+        (c) => c.name.toLowerCase() === name.toLowerCase(),
+      )
+      if (existing) return existing // reuse rather than create a duplicate
+
+      const { data, error } = await supabase
+        .from('expense_categories')
+        .insert({ name })
+        .select('id, name')
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: async (category) => {
+      await queryClient.invalidateQueries({ queryKey: ['expense-categories'] })
+      setEditing((prev) => ({ ...prev, category_id: category.id }))
+      setAddingCategory(false)
+      setNewCategory('')
+      toast.success(`Category "${category.name}" ready`)
+    },
+    onError: (e) => toast.error(friendlyError(e)),
   })
 
   const save = useMutation({
@@ -187,7 +215,66 @@ export default function Expenses() {
       >
         {editing && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Select label="Category" required placeholder="Choose…" value={editing.category_id} onChange={(e) => setEditing({ ...editing, category_id: e.target.value })} options={(categories.data ?? []).map((c) => ({ value: c.id, label: c.name }))} />
+            {/* A category the office needs but does not have yet should not
+                stop them recording the expense, so it can be added here. */}
+            <div>
+              <Select
+                label="Category"
+                required
+                placeholder="Choose…"
+                value={editing.category_id}
+                onChange={(e) => setEditing({ ...editing, category_id: e.target.value })}
+                options={(categories.data ?? []).map((c) => ({ value: c.id, label: c.name }))}
+              />
+              {addingCategory ? (
+                <div className="mt-2 flex items-end gap-2">
+                  <Input
+                    label="New category"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Magaca qaybta"
+                    wrapperClassName="flex-1"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        if (newCategory.trim()) addCategory.mutate(newCategory.trim())
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mb-0.5"
+                    loading={addCategory.isPending}
+                    disabled={!newCategory.trim()}
+                    onClick={() => addCategory.mutate(newCategory.trim())}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="mb-0.5"
+                    onClick={() => {
+                      setAddingCategory(false)
+                      setNewCategory('')
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingCategory(true)}
+                  className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-navy-700 hover:underline dark:text-navy-300"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add a new category
+                </button>
+              )}
+            </div>
             <Input label="Amount" required type="number" step="0.01" min="0.01" value={editing.amount} onChange={(e) => setEditing({ ...editing, amount: e.target.value })} />
             <Input label="Description" required value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} wrapperClassName="sm:col-span-2" />
             <Select label="Payment method" value={editing.payment_method} onChange={(e) => setEditing({ ...editing, payment_method: e.target.value })} options={PAYMENT_METHODS} />
