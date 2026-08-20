@@ -34,6 +34,10 @@ export async function getServiceFields(serviceId) {
     .select('id, field_key, label, field_type, options, placeholder, help_text, is_required, display_order, section')
     .eq('service_id', serviceId)
     .is('deleted_at', null)
+    // Section first: both parties reuse display_order 1..5, so ordering by
+    // that alone leaves the tie unbroken and the sections can come back in
+    // any order — Party 2 was rendering above Party 1.
+    .order('section')
     .order('display_order')
   if (error) throw error
   return data ?? []

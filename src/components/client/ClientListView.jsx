@@ -63,14 +63,7 @@ export default function ClientListView({
       sortable: true,
       render: (r) => (
         <div>
-          <div className="flex items-center gap-1.5">
-            <p className="font-medium text-slate-800">{r.full_name}</p>
-            {r.priority === 'urgent' && (
-              <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-600">
-                Urgent
-              </span>
-            )}
-          </div>
+          <p className="font-medium text-slate-800">{r.full_name}</p>
           <p className="text-xs text-slate-400 tabular">
             {r.reference_no || r.registration_no}
           </p>
@@ -79,7 +72,6 @@ export default function ClientListView({
     },
     { key: 'phone', header: 'Phone', className: 'tabular' },
     { key: 'service_name_snapshot', header: 'Service' },
-    { key: 'document_type', header: 'Document', render: (r) => r.document_type ?? '—' },
     {
       key: 'final_price',
       header: 'Amount',

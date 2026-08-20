@@ -21,7 +21,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useDebounce } from '../../hooks/useDebounce'
 import { friendlyError } from '../../utils/errors'
 import { qk, LONG_CACHE } from '../../lib/queryClient'
-import { MOGADISHU_DISTRICTS, ID_TYPES, DOCUMENT_TYPES, PRIORITIES } from '../../constants'
+import { MOGADISHU_DISTRICTS, ID_TYPES } from '../../constants'
 import { formatDate } from '../../utils/format'
 
 const EMPTY = {
@@ -33,8 +33,6 @@ const EMPTY = {
   service_id: '',
   original_price: '',
   reference_no: '',
-  document_type: '',
-  priority: 'normal',
 }
 
 export default function NewClient() {
@@ -406,7 +404,7 @@ export default function NewClient() {
               ))}
             </Select>
 
-            <div className="mt-4 space-y-4">
+            <div className="mt-4">
               <Input
                 label="Reference"
                 required
@@ -415,23 +413,6 @@ export default function NewClient() {
                 error={errors.reference_no}
                 placeholder={nextReference.data ?? 'NR132/…/2026'}
                 hint="Ministry reference — change it if the ministry issued a different one"
-              />
-
-              <Select
-                label="Document Type"
-                placeholder="Choose the document…"
-                value={form.document_type}
-                onChange={(e) => setField('document_type', e.target.value)}
-                options={DOCUMENT_TYPES}
-                hint="What ALT will prepare"
-              />
-
-              <Select
-                label="Priority"
-                value={form.priority}
-                onChange={(e) => setField('priority', e.target.value)}
-                options={PRIORITIES}
-                hint="Urgent jobs go to the top of the ALT queue"
               />
             </div>
 

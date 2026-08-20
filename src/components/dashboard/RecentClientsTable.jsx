@@ -22,7 +22,7 @@ export default function RecentClientsTable({ title = 'Recent clients', filter, v
     queryFn: async () => {
       let q = supabase
         .from('clients')
-        .select('id, registration_no, full_name, phone, service_name_snapshot, final_price, status, registered_at')
+        .select('id, registration_no, reference_no, full_name, phone, service_name_snapshot, final_price, status, registered_at')
         .is('deleted_at', null)
         .order('registered_at', { ascending: false })
         .limit(limit)
@@ -59,10 +59,11 @@ export default function RecentClientsTable({ title = 'Recent clients', filter, v
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[620px] text-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="border-b border-surface-border bg-surface-muted text-xs uppercase tracking-wide text-slate-500">
               <th className="px-5 py-2.5 text-left font-semibold">Client</th>
+              <th className="px-5 py-2.5 text-left font-semibold">Reference</th>
               <th className="px-5 py-2.5 text-left font-semibold">Service</th>
               <th className="px-5 py-2.5 text-right font-semibold">Amount</th>
               <th className="px-5 py-2.5 text-left font-semibold">Status</th>
@@ -80,6 +81,9 @@ export default function RecentClientsTable({ title = 'Recent clients', filter, v
                   <p className="font-medium text-slate-800">{c.full_name}</p>
                   <p className="text-xs text-slate-400 tabular">{c.registration_no}</p>
                 </td>
+                {/* The ministry reference is what staff quote to the MOJ
+                    portal, so it belongs on the dashboard beside the name. */}
+                <td className="px-5 py-3 tabular text-slate-600">{c.reference_no || '—'}</td>
                 <td className="px-5 py-3 text-slate-600">{c.service_name_snapshot}</td>
                 <td className="px-5 py-3 text-right font-medium tabular text-slate-800">
                   {money(c.final_price)}
