@@ -108,6 +108,24 @@ export const ID_TYPES = [
 
 export const ID_TYPE_LABELS = Object.fromEntries(ID_TYPES.map((t) => [t.value, t.label]))
 
+/**
+ * Which paper ALT actually prepares. Separate from the service: a Beec always
+ * yields a Sales Agreement, but a Caddeyn might be a Declaration or an
+ * Affidavit, and ALT needs to know which before starting.
+ */
+export const DOCUMENT_TYPES = [
+  { value: 'Sales Agreement', label: 'Sales Agreement' },
+  { value: 'Declaration', label: 'Declaration' },
+  { value: 'Power of Attorney', label: 'Power of Attorney' },
+  { value: 'Affidavit', label: 'Affidavit' },
+]
+
+/** Urgent jobs sort to the top of the ALT queue. */
+export const PRIORITIES = [
+  { value: 'normal', label: 'Normal' },
+  { value: 'urgent', label: 'Urgent' },
+]
+
 /** Used to tag an expense or income to the part of the office it belongs to. */
 export const DEPARTMENTS = [
   { value: 'Registration', label: 'Registration' },

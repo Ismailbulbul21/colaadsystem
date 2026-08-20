@@ -61,7 +61,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen flex-col bg-surface-muted">
       {/* ---------- language + theme ---------- */}
-      <div className="flex items-center justify-end gap-3 p-5">
+      <div className="flex shrink-0 items-center justify-end gap-3 px-5 py-2.5">
         <div className="flex items-center overflow-hidden rounded-lg border border-surface-border bg-surface">
           {[
             ['so', 'Soomaali'],
@@ -90,36 +90,33 @@ export default function Login() {
         </button>
       </div>
 
-      {/* ---------- the card ---------- */}
-      <div className="flex flex-1 items-center justify-center px-4 pb-10">
+      {/* ---------- the card ----------
+          Centred, but the whole column can scroll if a very short window
+          cannot fit it — the card is never clipped off the bottom. */}
+      <div className="flex flex-1 items-center justify-center overflow-y-auto px-4 py-2">
         <div className="w-full max-w-[420px]">
-          <div className="rounded-xl border border-surface-border bg-surface p-8 shadow-card">
+          <div className="rounded-xl border border-surface-border bg-surface p-5 shadow-card sm:p-6">
             <div className="text-center">
               <img
                 src={BUNDLED_LOGO}
                 alt="Olad Law Office and Public Notary Service"
-                className="mx-auto h-24 w-auto object-contain"
+                className="mx-auto h-14 w-auto object-contain"
               />
-              <h1 className="mt-4 text-base font-bold uppercase leading-tight tracking-tight text-green-800 dark:text-green-300">
-                Olad Law Office and
-                <br />
-                Public Notary Service
+              <h1 className="mt-3 text-[15px] font-bold uppercase leading-tight tracking-tight text-green-800 dark:text-green-300">
+                Olad Law Office and Public Notary Service
               </h1>
-              <p className="mt-1 text-2xs font-medium uppercase tracking-wide text-ink-400">
-                Xafiiska Nootaayada iyo Latalinta Arimaha Sharciga
-              </p>
             </div>
 
-            <div className="my-6 h-px bg-surface-border" />
+            <div className="my-3.5 h-px bg-surface-border" />
 
-            <h2 className="text-center text-xl font-semibold tracking-tight text-ink-900">
+            <h2 className="text-center text-lg font-semibold tracking-tight text-ink-900">
               {t('auth.welcome')}
             </h2>
-            <p className="mx-auto mt-1.5 max-w-xs text-center text-[13px] leading-relaxed text-ink-500">
+            <p className="mx-auto mt-1 max-w-xs text-center text-[13px] leading-snug text-ink-500">
               {t('auth.welcomeHint')}
             </p>
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3" noValidate>
               {error && (
                 <div
                   role="alert"
@@ -194,16 +191,15 @@ export default function Login() {
               </Button>
             </form>
 
-            <p className="mt-6 text-center text-2xs leading-relaxed text-ink-400">
+            <p className="mt-3 text-center text-2xs leading-snug text-ink-400">
               {t('auth.noSignup')}
               <br />
               {t('auth.lockWarning')}
             </p>
           </div>
 
-          <p className="mt-5 text-center text-2xs text-ink-400">
+          <p className="mt-3 text-center text-2xs text-ink-400">
             © {new Date().getFullYear()} Olad Law Office and Public Notary Service.
-            All rights reserved.
           </p>
         </div>
       </div>

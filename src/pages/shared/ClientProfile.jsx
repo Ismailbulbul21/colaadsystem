@@ -242,6 +242,9 @@ export default function ClientProfile() {
             <dl className="space-y-2.5 text-sm">
               {[
                 ['Registration No', c.registration_no],
+                ['Reference', c.reference_no],
+                ['Document Type', c.document_type],
+                ['Priority', c.priority === 'urgent' ? 'Urgent' : 'Normal'],
                 ['Phone', c.phone],
                 // Show which document the number belongs to, not just a number
                 [

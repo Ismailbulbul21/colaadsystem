@@ -2,8 +2,9 @@ import { supabase } from '../lib/supabaseClient'
 import { dayRangeToTimestamps } from '../utils/format'
 
 const LIST_COLUMNS =
-  'id, registration_no, full_name, phone, national_id, service_id, service_name_snapshot, ' +
-  'original_price, discount_amount, final_price, status, registered_at, completed_at, registered_by'
+  'id, registration_no, reference_no, full_name, phone, national_id, service_id, service_name_snapshot, ' +
+  'document_type, priority, original_price, discount_amount, final_price, status, registered_at, ' +
+  'completed_at, registered_by'
 
 /**
  * Server-side pagination everywhere. `.range()` plus `count: 'exact'` means the
@@ -19,7 +20,8 @@ export async function listClients({ range, sort, filters = {} }) {
   if (filters.q) {
     const like = `%${filters.q}%`
     q = q.or(
-      `full_name.ilike.${like},phone.ilike.${like},registration_no.ilike.${like},national_id.ilike.${like}`,
+      `full_name.ilike.${like},phone.ilike.${like},registration_no.ilike.${like},` +
+        `reference_no.ilike.${like},national_id.ilike.${like}`,
     )
   }
   if (filters.status) q = q.eq('status', filters.status)
@@ -39,8 +41,17 @@ export async function listClients({ range, sort, filters = {} }) {
     if (end) q = q.lt('registered_at', end)
   }
 
+  // Urgent work floats to the top of every list unless the user has chosen a
+  // sort of their own — a priority flag nobody sees first would be pointless.
+  // Sorted DESCENDING because 'urgent' > 'normal' alphabetically.
   const sortKey = sort?.key ?? 'registered_at'
-  q = q.order(sortKey, { ascending: sort?.dir === 'asc' })
+  if (!sort?.key || sort.key === 'registered_at') {
+    q = q
+      .order('priority', { ascending: false })
+      .order('registered_at', { ascending: sort?.dir === 'asc' })
+  } else {
+    q = q.order(sortKey, { ascending: sort?.dir === 'asc' })
+  }
   q = q.range(range.from, range.to)
 
   const { data, error, count } = await q
@@ -85,6 +96,8 @@ export async function createClient({ client, details }) {
       address: client.address?.trim() || null, // Banadir district
       service_id: client.service_id,
       reference_no: client.reference_no?.trim() || null, // ministry reference
+      document_type: client.document_type || null,
+      priority: client.priority || 'normal',
       status: 'waiting_alt',
       // The office asked for the amount to be changeable per client. The
       // trigger still falls back to the service price when this is null, and
