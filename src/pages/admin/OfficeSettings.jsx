@@ -101,7 +101,7 @@ export default function OfficeSettings() {
                 options={[{ value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' }, { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' }, { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' }]}
               />
               <Input label="Timezone" value={form.timezone ?? ''} onChange={set('timezone')} />
-              <Input label="Registration prefix" value={form.registration_prefix ?? ''} onChange={set('registration_prefix')} hint="e.g. COLAAD" />
+              <Input label="Registration prefix" value={form.registration_prefix ?? ''} onChange={set('registration_prefix')} hint="e.g. NR132" />
               <Input label="Receipt prefix" value={form.receipt_prefix ?? ''} onChange={set('receipt_prefix')} hint="e.g. RCP" />
               <Input label="Invoice prefix" value={form.invoice_prefix ?? ''} onChange={set('invoice_prefix')} hint="e.g. INV" wrapperClassName="sm:col-span-2" />
             </div>

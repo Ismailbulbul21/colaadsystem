@@ -84,6 +84,7 @@ export async function createClient({ client, details }) {
       national_id: client.national_id?.trim() || null,
       address: client.address?.trim() || null, // Banadir district
       service_id: client.service_id,
+      reference_no: client.reference_no?.trim() || null, // ministry reference
       status: 'waiting_alt',
       // The office asked for the amount to be changeable per client. The
       // trigger still falls back to the service price when this is null, and

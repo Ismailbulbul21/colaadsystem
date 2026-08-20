@@ -5,33 +5,68 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Deep authoritative navy — the legal-office anchor colour.
-        navy: {
-          50: '#F2F6FC',
-          100: '#E3EBF7',
-          200: '#C6D6EE',
-          300: '#9AB6DF',
-          400: '#6690CB',
-          500: '#4270B3',
-          600: '#2F5697',
-          700: '#26437A',
-          800: '#1B3260',
-          900: '#0F2444',
-          950: '#08172E',
+        /**
+         * Both scales are sampled from the OLAD crest so the interface and the
+         * logo belong together: the laurel blue (#6084e4) and the scales'
+         * forest green (#305418 – #487824).
+         *
+         * `navy` and `brass` are kept as ALIASES of these two. Hundreds of
+         * elements already reference them, and remapping the values retunes
+         * the whole interface at once instead of rewriting every class name —
+         * far less risk of missing one and leaving a stray old colour behind.
+         */
+        blue: {
+          50: '#EEF3FD',
+          100: '#DDE7FB',
+          200: '#C2D3F7',
+          300: '#9DB6F1',
+          400: '#7A99EA',
+          500: '#6084E4',
+          600: '#4566D4',
+          700: '#3A53B8',
+          800: '#2F4494',
+          900: '#293B77',
+          950: '#1B2650',
         },
-        // Restrained brass accent. Used sparingly — active markers, seals,
-        // the odd highlight. Enough to read as considered, never decorative.
+        green: {
+          50: '#F3F8EF',
+          100: '#E4F0DA',
+          200: '#C9E1B7',
+          300: '#A2CB88',
+          400: '#78B057',
+          500: '#559034',
+          600: '#487824',
+          700: '#3B611F',
+          800: '#305418',
+          900: '#284515',
+          950: '#16280C',
+        },
+        // Primary interface colour — the blue from the crest.
+        navy: {
+          50: '#EEF3FD',
+          100: '#DDE7FB',
+          200: '#C2D3F7',
+          300: '#9DB6F1',
+          400: '#7A99EA',
+          500: '#6084E4',
+          600: '#4566D4',
+          700: '#3A53B8',
+          800: '#2F4494',
+          900: '#293B77',
+          950: '#1B2650',
+        },
+        // Accent — the green from the crest, replacing the old brass.
         brass: {
-          50: '#FBF8EF',
-          100: '#F5EDD6',
-          200: '#EAD9A9',
-          300: '#DCC074',
-          400: '#CFA84B',
-          500: '#BE9036',
-          600: '#A2732B',
-          700: '#815726',
-          800: '#6C4825',
-          900: '#5C3D23',
+          50: '#F3F8EF',
+          100: '#E4F0DA',
+          200: '#C9E1B7',
+          300: '#A2CB88',
+          400: '#78B057',
+          500: '#559034',
+          600: '#487824',
+          700: '#3B611F',
+          800: '#305418',
+          900: '#284515',
         },
         // Cooled neutrals, variable-driven so the scale inverts in dark mode.
         ink: {
@@ -56,7 +91,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['InterVariable', 'Inter', 'Segoe UI', 'system-ui', 'sans-serif'],
+        // Public Sans — the same face the Ministry's own notary portal uses.
+        sans: ['"Public Sans Variable"', '"Public Sans"', 'Segoe UI', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace'],
       },
       fontSize: {

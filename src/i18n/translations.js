@@ -14,16 +14,16 @@ export const DEFAULT_LANGUAGE = 'so'
 export const translations = {
   so: {
     // ---------- app ----------
-    'app.name': 'Nootaayada Colaad',
+    'app.name': 'Nootaayada Olad',
     'app.system': 'Nidaamka Maaraynta',
-    'app.loading': 'Waa la furayaa nidaamka Colaad',
-    'app.office': 'Xafiiska Nootaayada Colaad',
+    'app.loading': 'Waa la furayaa nidaamka Olad',
+    'app.office': 'Xafiiska Nootaayada Olad',
 
     // ---------- login ----------
     'auth.signIn': 'Soo gal',
     'auth.signInHint': 'Isticmaal magaca iyo furaha uu ku siiyay Maamulaha.',
     'auth.welcome': 'Ku Soo Dhawoow',
-    'auth.welcomeHint': 'Fadlan geli akoonkaaga si aad u isticmaasho nidaamka Colaad Notary.',
+    'auth.welcomeHint': 'Fadlan geli akoonkaaga si aad u isticmaasho nidaamka Olad Notary.',
     'auth.username': 'Magaca isticmaalaha',
     'auth.usernamePlaceholder': 'Geli username',
     'auth.password': 'Furaha sirta',
@@ -49,7 +49,7 @@ export const translations = {
     'pw.ruleNumber': 'Waxay leedahay lambar',
     'pw.mismatch': 'Labada fure isku mid ma aha',
     'pw.notMeet': 'Furahaaga cusub ma buuxinayo shuruudaha.',
-    'pw.updated': 'Furaha waa la cusboonaysiiyay. Ku soo dhawow Nootaayada Colaad.',
+    'pw.updated': 'Furaha waa la cusboonaysiiyay. Ku soo dhawow Nootaayada Olad.',
     'pw.change': 'Beddel furaha',
     'pw.update': 'Cusboonaysii furaha',
 
@@ -167,15 +167,15 @@ export const translations = {
   },
 
   en: {
-    'app.name': 'Colaad Notary',
+    'app.name': 'Olad Notary',
     'app.system': 'Management System',
-    'app.loading': 'Starting Colaad Notary System',
-    'app.office': 'Colaad Public Notary Office',
+    'app.loading': 'Starting Olad Notary System',
+    'app.office': 'Olad Law Office and Public Notary Service',
 
     'auth.signIn': 'Sign in',
     'auth.signInHint': 'Use the username and password given to you by the Administrator.',
     'auth.welcome': 'Welcome',
-    'auth.welcomeHint': 'Please sign in to your account to use the Colaad Notary system.',
+    'auth.welcomeHint': 'Please sign in to your account to use the Olad Notary system.',
     'auth.username': 'Username',
     'auth.usernamePlaceholder': 'Enter username',
     'auth.password': 'Password',
@@ -200,7 +200,7 @@ export const translations = {
     'pw.ruleNumber': 'Contains a number',
     'pw.mismatch': 'Passwords do not match',
     'pw.notMeet': 'Your new password does not meet the requirements.',
-    'pw.updated': 'Password updated. Welcome to Colaad Notary.',
+    'pw.updated': 'Password updated. Welcome to Olad Notary.',
     'pw.change': 'Change password',
     'pw.update': 'Update password',
 

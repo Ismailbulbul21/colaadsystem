@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import {
-  Menu, Bell, LogOut, User, Search, Loader2, CheckCheck, X, Sun, Moon,
+  Bell, LogOut, User, Search, Loader2, CheckCheck, X, Sun, Moon,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -14,9 +14,9 @@ import { useDebounce } from '../hooks/useDebounce'
 import { universalSearch } from '../services/searchService'
 import { formatRelative } from '../utils/format'
 import { friendlyError } from '../utils/errors'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, BUNDLED_LOGO } from '../lib/supabaseClient'
 
-export default function Topbar({ onMenuClick }) {
+export default function Topbar() {
   const { profile, role, signOut } = useAuth()
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
   const { t, lang, setLang, languages } = useLanguage()
@@ -89,18 +89,23 @@ export default function Topbar({ onMenuClick }) {
   return (
     <header
       ref={rootRef}
-      className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-surface-border bg-white/85 px-4 backdrop-blur-xl backdrop-saturate-150 lg:px-6 no-print"
+      className="z-30 flex h-[72px] items-center gap-3 border-b border-surface-border bg-surface px-4 lg:px-6 no-print"
     >
-      <button
-        onClick={onMenuClick}
-        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-        aria-label="Open menu"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+      {/* ---------- office identity ---------- */}
+      <Link to="/" className="flex shrink-0 items-center gap-2.5">
+        <img src={BUNDLED_LOGO} alt="" className="h-11 w-11 shrink-0 object-contain" />
+        <span className="hidden min-w-0 leading-tight sm:block">
+          <span className="block truncate text-[13px] font-bold uppercase tracking-tight text-green-800 dark:text-green-300">
+            Olad Law Office and
+          </span>
+          <span className="block truncate text-[13px] font-bold uppercase tracking-tight text-green-800 dark:text-green-300">
+            Public Notary Service
+          </span>
+        </span>
+      </Link>
 
       {/* ---------- universal search ---------- */}
-      <div className="relative flex-1 max-w-xl">
+      <div className="relative mx-auto w-full max-w-xl">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           value={query}

@@ -13,7 +13,7 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('[Colaad] Render error:', error, info?.componentStack)
+    console.error('[OLAD] Render error:', error, info?.componentStack)
   }
 
   render() {

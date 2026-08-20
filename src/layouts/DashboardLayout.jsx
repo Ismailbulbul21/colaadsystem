@@ -2,7 +2,7 @@ import { useState, Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 
-import Sidebar from './Sidebar'
+import TopNav from './TopNav'
 import Topbar from './Topbar'
 import { NotificationProvider } from '../contexts/NotificationContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -37,19 +37,25 @@ function Shell() {
   // One subscription for the whole shell keeps every counter live.
   useWorkflowRealtime([['sidebar-badges', role], ['stats', role]])
 
+  // Identity bar on top, department menu beneath it, content below — the
+  // shape the office asked for, replacing the left sidebar.
   return (
     <div className="min-h-screen bg-surface-muted">
-      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} badges={badges} />
+      <Topbar />
+      <TopNav badges={badges} />
 
-      <div className="lg:pl-64">
-        <Topbar onMenuClick={() => setMenuOpen(true)} />
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-6 lg:px-6">
+        <Suspense fallback={<CardsSkeleton />}>
+          <Outlet />
+        </Suspense>
+      </main>
 
-        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 lg:px-8">
-          <Suspense fallback={<CardsSkeleton />}>
-            <Outlet />
-          </Suspense>
-        </main>
-      </div>
+      <footer className="border-t border-surface-border bg-surface px-4 py-4 no-print lg:px-6">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 text-2xs text-ink-400">
+          <span>© {new Date().getFullYear()} Olad Law Office and Public Notary Service. All rights reserved.</span>
+          <span>Version 1.0.0</span>
+        </div>
+      </footer>
     </div>
   )
 }

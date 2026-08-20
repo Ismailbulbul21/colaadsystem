@@ -15,6 +15,7 @@ import { StatusBadge } from '../../components/ui/Badge'
 
 import { listActiveServices, getServiceFields } from '../../services/serviceService'
 import { createClient, findSimilarClients } from '../../services/clientService'
+import { supabase } from '../../lib/supabaseClient'
 import { useOfficeSettings } from '../../contexts/OfficeSettingsContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useDebounce } from '../../hooks/useDebounce'
@@ -31,6 +32,7 @@ const EMPTY = {
   address: '',
   service_id: '',
   original_price: '',
+  reference_no: '',
 }
 
 export default function NewClient() {
@@ -57,6 +59,24 @@ export default function NewClient() {
     enabled: !!form.service_id,
     ...LONG_CACHE,
   })
+
+  // The Ministry reference the office must declare this document under.
+  // Suggested, never forced — their numbering is not strictly sequential.
+  const nextReference = useQuery({
+    queryKey: ['next-moj-reference'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('peek_moj_reference')
+      if (error) throw error
+      return data
+    },
+    staleTime: 0,
+  })
+
+  useEffect(() => {
+    if (nextReference.data && !form.reference_no) {
+      setForm((f) => (f.reference_no ? f : { ...f, reference_no: nextReference.data }))
+    }
+  }, [nextReference.data, form.reference_no])
 
   const selectedService = useMemo(
     () => services.data?.find((s) => s.id === form.service_id) ?? null,
@@ -139,6 +159,7 @@ export default function NewClient() {
   const validate = () => {
     const next = {}
     if (!form.service_id) next.service_id = 'Choose a service.'
+    if (!form.reference_no.trim()) next.reference_no = 'Enter the ministry reference.'
 
     if (form.original_price === '' || Number.isNaN(Number(form.original_price))) {
       next.original_price = 'Enter the amount.'
@@ -382,6 +403,18 @@ export default function NewClient() {
                 </optgroup>
               ))}
             </Select>
+
+            <div className="mt-4">
+              <Input
+                label="Reference"
+                required
+                value={form.reference_no}
+                onChange={(e) => setField('reference_no', e.target.value)}
+                error={errors.reference_no}
+                placeholder={nextReference.data ?? 'NR132/…/2026'}
+                hint="Ministry reference — change it if the ministry issued a different one"
+              />
+            </div>
 
             {selectedService && (
               <>

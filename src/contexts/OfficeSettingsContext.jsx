@@ -6,7 +6,7 @@ import { qk, LONG_CACHE } from '../lib/queryClient'
 const OfficeSettingsContext = createContext(null)
 
 const FALLBACK = {
-  office_name: 'Colaad Public Notary Office',
+  office_name: 'Olad Law Office and Public Notary Service',
   currency: 'USD',
   currency_symbol: '$',
   date_format: 'DD/MM/YYYY',

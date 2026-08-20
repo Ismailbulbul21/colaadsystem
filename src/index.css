@@ -12,11 +12,12 @@
     --nav-width: 16rem;
     --top-height: 4rem;
 
-    /* Light — the office default */
+    /* Light — the office default. A near-white page so the white cards on
+       top still read as raised, per the brief's "white background". */
     --surface: 255 255 255;
-    --surface-muted: 246 248 252;
-    --surface-sunken: 238 242 248;
-    --surface-border: 227 233 241;
+    --surface-muted: 248 250 252;
+    --surface-sunken: 241 245 249;
+    --surface-border: 226 232 240;
 
     --ink-50: 248 250 252;
     --ink-100: 241 244 248;
@@ -81,10 +82,7 @@
 
   body {
     @apply bg-surface-muted text-ink-800 antialiased;
-    font-family: 'InterVariable', 'Inter', 'Segoe UI', system-ui, sans-serif;
-    /* cv02/cv03/cv04 give Inter its more legible single-storey shapes;
-       tnum keeps every column of money and dates aligned. */
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+    font-family: 'Public Sans Variable', 'Public Sans', 'Segoe UI', system-ui, sans-serif;
     text-rendering: optimizeLegibility;
   }
 

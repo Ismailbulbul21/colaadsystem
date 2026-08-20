@@ -57,7 +57,7 @@ async function fetchAll(table, onProgress) {
 export async function createBackup(onStep) {
   const result = {
     meta: {
-      office: 'Colaad Public Notary Office',
+      office: 'Olad Law Office and Public Notary Service',
       created_at: new Date().toISOString(),
       format_version: 1,
       note: 'Database rows only. Uploaded documents live in Supabase Storage and are not included.',

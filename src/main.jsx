@@ -14,7 +14,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import ErrorBoundary from './components/feedback/ErrorBoundary'
 
 // Bundled locally so the interface never waits on a font CDN.
-import '@fontsource-variable/inter'
+import '@fontsource-variable/public-sans'
 import './index.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
