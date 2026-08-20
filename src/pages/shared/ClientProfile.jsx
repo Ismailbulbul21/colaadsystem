@@ -1,10 +1,21 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  BadgePercent, Upload, CheckCircle2, Wallet, Printer, Download, FileText, Clock,
+  BadgePercent, Upload, CheckCircle2, Wallet, Printer, Download, FileText, Clock, UserRound,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import clsx from 'clsx'
+
+// Each section card gets its own accent so the two parties are told apart at
+// a glance, as in the office's design.
+const SECTION_TONES = [
+  { text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-500' },
+  { text: 'text-green-700 dark:text-green-300', border: 'border-green-600' },
+  { text: 'text-amber-700 dark:text-amber-300', border: 'border-amber-500' },
+  { text: 'text-violet-700 dark:text-violet-300', border: 'border-violet-500' },
+]
+const SectionIcon = UserRound
 
 import PageHeader from '../../components/ui/PageHeader'
 import Button from '../../components/ui/Button'
@@ -13,7 +24,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import Badge, { StatusBadge } from '../../components/ui/Badge'
 import { Input, Textarea, Select, ReadOnlyMoney } from '../../components/ui/Field'
 import { FormSkeleton } from '../../components/feedback/Skeleton'
-import { ErrorState } from '../../components/feedback/States'
+import { ErrorState, EmptyState } from '../../components/feedback/States'
 import ReceiptModal from '../../components/print/ReceiptModal'
 import { supabase, signedDocumentUrl } from '../../lib/supabaseClient'
 import { getClient, getClientDetails, getClientTimeline, requestDiscount } from '../../services/clientService'
@@ -44,6 +55,21 @@ export default function ClientProfile() {
 
   const client = useQuery({ queryKey: ['client', id], queryFn: () => getClient(id) })
   const details = useQuery({ queryKey: ['client-details', id], queryFn: () => getClientDetails(id) })
+
+  /**
+   * Group the answers by the section they were captured under, keeping the
+   * order they were defined in. Party 1, Party 2 and the property details then
+   * each get their own card instead of one long interleaved list.
+   */
+  const detailSections = useMemo(() => {
+    const groups = new Map()
+    for (const d of details.data ?? []) {
+      const key = d.section || 'Service Information'
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key).push(d)
+    }
+    return [...groups.entries()].map(([section, rows]) => ({ section, rows }))
+  }, [details.data])
   const timeline = useQuery({ queryKey: ['client-timeline', id], queryFn: () => getClientTimeline(id), enabled: tab === 'Timeline' })
 
   const documents = useQuery({
@@ -157,6 +183,19 @@ export default function ClientProfile() {
   if (client.isLoading) return <FormSkeleton fields={8} />
   if (client.isError) return <ErrorState error={client.error} onRetry={client.refetch} />
 
+  // A successful query can still come back empty — the client was removed, or
+  // this role is not allowed to see it. Without this the page read straight
+  // into undefined and crashed with "cannot read final_price".
+  if (!client.data) {
+    return (
+      <EmptyState
+        icon={FileText}
+        title="This client could not be opened"
+        description="It may have been removed, or your role may not have access to it."
+      />
+    )
+  }
+
   const c = client.data
   const paidSoFar = (receipts.data ?? []).reduce((a, r) => a + Number(r.amount_paid ?? 0), 0)
   const due = Number(c.final_price) - paidSoFar
@@ -264,21 +303,41 @@ export default function ClientProfile() {
             </dl>
           </div>
 
-          <div className="card p-6">
-            <h3 className="mb-4 text-sm font-semibold text-slate-700">Service Information</h3>
-            {details.data?.length ? (
+          {/* One card per section. Rendering every answer in a single list
+              put both parties in one column with every label repeated —
+              "Magaca oo saddexan" twice, "Telefoonka" twice — which is
+              unreadable on a two-party deed. */}
+          {detailSections.map(({ section, rows }, i) => (
+            <div key={section} className="card p-6">
+              <h3
+                className={clsx(
+                  'mb-4 flex items-center gap-2 border-b pb-2.5 text-sm font-semibold uppercase tracking-wide',
+                  SECTION_TONES[i % SECTION_TONES.length].text,
+                  SECTION_TONES[i % SECTION_TONES.length].border,
+                )}
+              >
+                <SectionIcon className="h-4 w-4" />
+                {section}
+              </h3>
               <dl className="space-y-2.5 text-sm">
-                {details.data.map((d) => (
+                {rows.map((d) => (
                   <div key={d.id} className="flex justify-between gap-4">
                     <dt className="text-slate-500">{d.label}</dt>
                     <dd className="text-right font-medium text-slate-800">{d.value || '—'}</dd>
                   </div>
                 ))}
               </dl>
-            ) : (
-              <p className="text-sm text-slate-500">No extra information was recorded for this service.</p>
-            )}
-          </div>
+            </div>
+          ))}
+
+          {details.data && details.data.length === 0 && (
+            <div className="card p-6">
+              <h3 className="mb-4 text-sm font-semibold text-slate-700">Service Information</h3>
+              <p className="text-sm text-slate-500">
+                No extra information was recorded for this service.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
