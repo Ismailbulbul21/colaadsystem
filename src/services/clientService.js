@@ -80,6 +80,8 @@ export async function createClient({ client, details }) {
     .from('clients')
     .insert({
       full_name: client.full_name.trim(),
+      mother_name: client.mother_name?.trim() || null,
+      date_of_birth: client.date_of_birth || null,
       phone: client.phone.trim(),
       id_type: client.id_type || null,
       national_id: client.national_id?.trim() || null,

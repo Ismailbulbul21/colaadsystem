@@ -282,6 +282,8 @@ export default function ClientProfile() {
               {[
                 ['Registration No', c.registration_no],
                 ['Reference', c.reference_no],
+                ...(c.mother_name ? [['Magaca hooyada', c.mother_name]] : []),
+                ...(c.date_of_birth ? [['Taariikhda dhalashada', c.date_of_birth]] : []),
                 ['Phone', c.phone],
                 // Show which document the number belongs to, not just a number
                 [

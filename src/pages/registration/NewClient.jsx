@@ -26,6 +26,8 @@ import { formatDate } from '../../utils/format'
 
 const EMPTY = {
   full_name: '',
+  mother_name: '',
+  date_of_birth: '',
   phone: '',
   id_type: '',
   national_id: '',
@@ -326,6 +328,19 @@ export default function NewClient() {
                 error={errors.full_name}
                 autoFocus
                 wrapperClassName="sm:col-span-2"
+              />
+              <Input
+                label="Magaca hooyada"
+                value={form.mother_name}
+                onChange={(e) => setField('mother_name', e.target.value)}
+                hint="Mother's name"
+              />
+              <Input
+                label="Taariikhda dhalashada"
+                type="date"
+                value={form.date_of_birth}
+                onChange={(e) => setField('date_of_birth', e.target.value)}
+                hint="Date of birth"
               />
               <Input
                 label="Phone Number"
