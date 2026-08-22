@@ -94,33 +94,33 @@ export default function Login() {
           Centred, but the whole column can scroll if a very short window
           cannot fit it — the card is never clipped off the bottom. */}
       <div className="flex flex-1 items-center justify-center overflow-y-auto px-4 py-2">
-        <div className="w-full max-w-[880px]">
-          {/* Logo beside the form on a normal screen; stacked on a phone,
-              where side-by-side would squeeze both halves. */}
-          <div className="grid items-center gap-6 rounded-xl border border-surface-border bg-surface p-5 shadow-card sm:p-7 md:grid-cols-2 md:gap-10">
-            <div className="text-center md:border-r md:border-surface-border md:pr-10">
+        <div className="w-full max-w-[430px]">
+          <div className="rounded-xl border border-surface-border bg-surface p-5 shadow-card sm:p-6">
+            {/* Logo and name on one line, as on the office letterhead */}
+            <div className="flex items-center justify-center gap-3">
               <img
                 src={BUNDLED_LOGO}
                 alt="Olad Law Office and Public Notary Service"
-                className="mx-auto h-28 w-auto object-contain md:h-40"
+                className="h-14 w-14 shrink-0 object-contain"
               />
-              <h1 className="mt-4 text-base font-bold uppercase leading-tight tracking-tight text-green-800 dark:text-green-300 md:text-lg">
-                Olad Law Office and Public Notary Service
+              <h1 className="text-left text-[15px] font-bold uppercase leading-tight tracking-tight text-green-800 dark:text-green-300">
+                Olad Law Office and
+                <br />
+                Public Notary Service
               </h1>
-              <p className="mt-1.5 text-2xs font-medium uppercase tracking-wide text-ink-400">
-                Xafiiska Nootaayada iyo Latalinta Arimaha Sharciga
-              </p>
             </div>
 
+            <div className="my-4 h-px bg-surface-border" />
+
             <div>
-              <h2 className="text-center text-xl font-semibold tracking-tight text-ink-900">
+              <h2 className="text-center text-lg font-semibold tracking-tight text-ink-900">
                 {t('auth.welcome')}
               </h2>
               <p className="mx-auto mt-1 max-w-xs text-center text-[13px] leading-snug text-ink-500">
                 {t('auth.welcomeHint')}
               </p>
 
-              <form onSubmit={handleSubmit} className="mt-5 space-y-3.5" noValidate>
+              <form onSubmit={handleSubmit} className="mt-4 space-y-3" noValidate>
               {error && (
                 <div
                   role="alert"

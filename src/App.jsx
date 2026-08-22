@@ -22,6 +22,7 @@ const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
 const Backup           = lazy(() => import('./pages/admin/Backup'))
 const CreateInvoice    = lazy(() => import('./pages/finance/CreateInvoice'))
 const RecordIncome     = lazy(() => import('./pages/finance/RecordIncome'))
+const Drafts           = lazy(() => import('./pages/registration/Drafts'))
 
 const RegistrationDashboard = lazy(() => import('./pages/registration/Dashboard'))
 const NewClient             = lazy(() => import('./pages/registration/NewClient'))
@@ -104,6 +105,9 @@ export default function App() {
           <Route element={<ProtectedRoute roles={['admin', 'registration']} />}>
             <Route path="/registration" element={<RegistrationDashboard />} />
             <Route path="/registration/new" element={<NewClient />} />
+            <Route path="/registration/drafts" element={<Drafts />} />
+            {/* Same form, reopened on a saved draft */}
+            <Route path="/registration/draft/:draftId" element={<NewClient />} />
             <Route path="/registration/clients" element={<MyClients />} />
           </Route>
 

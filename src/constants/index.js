@@ -101,10 +101,11 @@ export const MOGADISHU_DISTRICTS = [
 ]
 
 /** Accepted forms of identification. The number is entered alongside. */
+/** Shown in Somali only — the office works in Somali. */
 export const ID_TYPES = [
-  { value: 'national_id', label: 'National ID', so: 'Aqoonsi Qaran' },
-  { value: 'passport', label: 'Passport', so: 'Baasaboor' },
-  { value: 'licence', label: 'Driving Licence', so: 'Liisanka Darawalnimo' },
+  { value: 'national_id', label: 'Aqoonsi Qaran' },
+  { value: 'passport', label: 'Baasaboor' },
+  { value: 'licence', label: 'Laysanka Darawalnimada' },
 ]
 
 export const ID_TYPE_LABELS = Object.fromEntries(ID_TYPES.map((t) => [t.value, t.label]))
@@ -159,6 +160,7 @@ export const NAV_ITEMS = [
 
   { to: '/registration', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['registration'], end: true },
   { to: '/registration/new', tKey: 'nav.newClient', label: 'New Client', icon: 'UserPlus', roles: ['registration'] },
+  { to: '/registration/drafts', tKey: 'nav.drafts', label: 'Drafts', icon: 'FileClock', roles: ['registration'], badge: 'drafts' },
   { to: '/registration/clients', tKey: 'nav.myClients', label: 'My Clients', icon: 'Users', roles: ['registration'] },
 
   { to: '/alt', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['alt'], end: true },

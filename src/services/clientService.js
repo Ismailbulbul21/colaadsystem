@@ -124,6 +124,65 @@ export async function createClient({ client, details }) {
   return data
 }
 
+/**
+ * Saves changes to an existing DRAFT and, when `status` is not 'draft',
+ * finishes it so the workflow starts.
+ *
+ * The answers are replaced wholesale rather than merged: a clerk may have
+ * changed the service, in which case the old service's questions no longer
+ * exist and leaving them behind would show fields that are not on the form.
+ */
+export async function updateDraft({ id, client, details, status }) {
+  const { data, error } = await supabase
+    .from('clients')
+    .update({
+      full_name: client.full_name.trim(),
+      mother_name: client.mother_name?.trim() || null,
+      date_of_birth: client.date_of_birth || null,
+      phone: client.phone.trim(),
+      id_type: client.id_type || null,
+      national_id: client.national_id?.trim() || null,
+      address: client.address?.trim() || null,
+      service_id: client.service_id,
+      reference_no: client.reference_no?.trim() || null,
+      original_price:
+        client.original_price === '' || client.original_price == null
+          ? null
+          : Number(client.original_price),
+      status: status === 'draft' ? 'draft' : 'waiting_alt',
+    })
+    .eq('id', id)
+    .eq('status', 'draft') // never let this touch a live registration
+    .select('id, registration_no, reference_no, final_price, original_price')
+    .single()
+  if (error) throw error
+
+  const { error: clearError } = await supabase
+    .from('client_service_details')
+    .delete()
+    .eq('client_id', id)
+  if (clearError) throw clearError
+
+  const rows = (details ?? [])
+    .filter((d) => d.value !== '' && d.value != null)
+    .map((d) => ({
+      client_id: id,
+      field_key: d.field_key,
+      label: d.label,
+      field_type: d.field_type,
+      value: String(d.value),
+      section: d.section,
+      display_order: d.display_order,
+    }))
+
+  if (rows.length) {
+    const { error: detailError } = await supabase.from('client_service_details').insert(rows)
+    if (detailError) throw detailError
+  }
+
+  return data
+}
+
 /** Warn before creating a second record for the same person. */
 export async function findSimilarClients(name, phone) {
   const { data, error } = await supabase.rpc('find_similar_clients', {

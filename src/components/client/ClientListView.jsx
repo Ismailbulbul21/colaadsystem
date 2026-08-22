@@ -58,15 +58,26 @@ export default function ClientListView({
 
   const columns = [
     {
+      // Its own column: staff quote this number to the ministry, so it has to
+      // be scannable down the page rather than tucked under the name.
+      key: 'reference_no',
+      header: 'Reference No.',
+      sortable: true,
+      render: (r) => (
+        <span className="font-medium tabular text-navy-700 dark:text-navy-300">
+          {r.reference_no || '—'}
+        </span>
+      ),
+      exportValue: (r) => r.reference_no ?? '',
+    },
+    {
       key: 'full_name',
       header: 'Client',
       sortable: true,
       render: (r) => (
         <div>
           <p className="font-medium text-slate-800">{r.full_name}</p>
-          <p className="text-xs text-slate-400 tabular">
-            {r.reference_no || r.registration_no}
-          </p>
+          <p className="text-xs text-slate-400 tabular">{r.registration_no}</p>
         </div>
       ),
     },
@@ -119,7 +130,7 @@ export default function ClientListView({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
             label="Search"
-            placeholder="Name, phone, registration no…"
+            placeholder="Name, phone, reference no…"
             defaultValue={table.filters.q ?? ''}
             onChange={(e) => table.setFilter('q', e.target.value)}
           />

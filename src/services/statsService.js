@@ -63,6 +63,12 @@ export async function fetchSidebarBadges(role) {
       ),
     )
   }
+  if (role === 'registration') {
+    // Unfinished work is easy to forget, so the count sits in the menu.
+    tasks.push(
+      countClients((q) => q.eq('status', 'draft')).then((r) => (out.drafts = r.count ?? 0)),
+    )
+  }
 
   await Promise.all(tasks)
   return out

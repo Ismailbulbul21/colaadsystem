@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Save, AlertTriangle, UserPlus, Info, FileClock } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -14,7 +14,9 @@ import { FormSkeleton } from '../../components/feedback/Skeleton'
 import { StatusBadge } from '../../components/ui/Badge'
 
 import { listActiveServices, getServiceFields } from '../../services/serviceService'
-import { createClient, findSimilarClients } from '../../services/clientService'
+import {
+  createClient, updateDraft, findSimilarClients, getClient, getClientDetails,
+} from '../../services/clientService'
 import { supabase } from '../../lib/supabaseClient'
 import { useOfficeSettings } from '../../contexts/OfficeSettingsContext'
 import { useAuth } from '../../contexts/AuthContext'
@@ -42,6 +44,11 @@ export default function NewClient() {
   const queryClient = useQueryClient()
   const { currency } = useOfficeSettings()
   const { isAdmin } = useAuth()
+
+  // Present when continuing a saved draft: /registration/draft/:draftId
+  const { draftId } = useParams()
+  const isEditingDraft = !!draftId
+  const [draftLoaded, setDraftLoaded] = useState(false)
 
   const [form, setForm] = useState(EMPTY)
   const [details, setDetails] = useState({})
@@ -75,10 +82,45 @@ export default function NewClient() {
   })
 
   useEffect(() => {
+    // Only suggest a fresh reference for a NEW registration — a draft already
+    // took one when it was first saved and must keep it.
+    if (isEditingDraft) return
     if (nextReference.data && !form.reference_no) {
       setForm((f) => (f.reference_no ? f : { ...f, reference_no: nextReference.data }))
     }
-  }, [nextReference.data, form.reference_no])
+  }, [nextReference.data, form.reference_no, isEditingDraft])
+
+  // ---------- continuing a saved draft ----------
+  const draft = useQuery({
+    queryKey: ['draft', draftId],
+    enabled: isEditingDraft,
+    queryFn: async () => {
+      const [client, rows] = await Promise.all([getClient(draftId), getClientDetails(draftId)])
+      return { client, rows }
+    },
+  })
+
+  useEffect(() => {
+    if (!draft.data || draftLoaded) return
+    const { client, rows } = draft.data
+
+    setForm({
+      full_name: client.full_name ?? '',
+      mother_name: client.mother_name ?? '',
+      date_of_birth: client.date_of_birth ?? '',
+      phone: client.phone ?? '',
+      id_type: client.id_type ?? '',
+      national_id: client.national_id ?? '',
+      address: client.address ?? '',
+      service_id: client.service_id ?? '',
+      original_price: client.original_price != null ? String(client.original_price) : '',
+      reference_no: client.reference_no ?? '',
+    })
+
+    // Answers come back keyed by field so the dynamic sections refill.
+    setDetails(Object.fromEntries((rows ?? []).map((r) => [r.field_key, r.value])))
+    setDraftLoaded(true)
+  }, [draft.data, draftLoaded])
 
   const selectedService = useMemo(
     () => services.data?.find((s) => s.id === form.service_id) ?? null,
@@ -128,12 +170,14 @@ export default function NewClient() {
     }
     let cancelled = false
     findSimilarClients(debouncedName.trim(), debouncedPhone.trim())
-      .then((rows) => !cancelled && setDuplicates(rows))
+      // A draft being continued matches itself on name and phone, which would
+      // warn the clerk their own unfinished work is a duplicate.
+      .then((rows) => !cancelled && setDuplicates(rows.filter((r) => r.id !== draftId)))
       .catch(() => !cancelled && setDuplicates([]))
     return () => {
       cancelled = true
     }
-  }, [debouncedName, debouncedPhone])
+  }, [debouncedName, debouncedPhone, draftId])
 
   const setField = (key, value) => {
     setForm((f) => ({ ...f, [key]: value }))
@@ -212,8 +256,8 @@ export default function NewClient() {
   }
 
   const save = useMutation({
-    mutationFn: (status) =>
-      createClient({
+    mutationFn: (status) => {
+      const payload = {
         // On a two-party service the client IS Party 1, so the record takes
         // its name, phone and ID from there rather than from a duplicate
         // "Client Information" block the clerk would have to fill twice.
@@ -235,16 +279,22 @@ export default function NewClient() {
           display_order: f.display_order,
           value: details[f.field_key],
         })),
-      }),
+      }
+      return isEditingDraft
+        ? updateDraft({ id: draftId, status, ...payload })
+        : createClient(payload)
+    },
     onSuccess: (data, status) => {
       toast.success(
         status === 'draft'
-          ? `Draft saved — ${data.registration_no}`
-          : `Client registered — ${data.registration_no}`,
+          ? `Draft saved — ${data.reference_no ?? data.registration_no}`
+          : `Registration completed — ${data.reference_no ?? data.registration_no}`,
       )
       queryClient.invalidateQueries({ queryKey: ['clients'] })
       queryClient.invalidateQueries({ queryKey: ['stats'] })
-      navigate(`/clients/${data.id}`)
+      queryClient.invalidateQueries({ queryKey: ['draft', draftId] })
+      // Staying on a draft lets the clerk keep working; finishing moves on.
+      navigate(status === 'draft' ? '/registration/drafts' : `/clients/${data.id}`)
     },
     onError: (error) => toast.error(friendlyError(error)),
   })
@@ -307,9 +357,21 @@ export default function NewClient() {
   return (
     <form onSubmit={handleSubmit}>
       <PageHeader
-        title="Register New Client"
-        description="Fill in the client details and choose the service they need."
-        breadcrumbs={[{ label: 'Registration', to: '/registration' }, { label: 'New Client' }]}
+        title={isEditingDraft ? 'Continue Draft' : 'Register New Client'}
+        description={
+          isEditingDraft
+            ? 'Carry on where you left off. Save it as a draft again, or finish it to send it to ALT.'
+            : 'Fill in the client details and choose the service they need.'
+        }
+        breadcrumbs={
+          isEditingDraft
+            ? [
+                { label: 'Registration', to: '/registration' },
+                { label: 'Drafts', to: '/registration/drafts' },
+                { label: 'Continue' },
+              ]
+            : [{ label: 'Registration', to: '/registration' }, { label: 'New Client' }]
+        }
         actions={
           <>
             <Button
@@ -323,7 +385,7 @@ export default function NewClient() {
               Save as Draft
             </Button>
             <Button type="submit" icon={Save} size="lg" loading={save.isPending}>
-              Save Client
+              {isEditingDraft ? 'Complete Registration' : 'Save Client'}
             </Button>
           </>
         }
@@ -411,7 +473,7 @@ export default function NewClient() {
                 placeholder="Choose a document…"
                 value={form.id_type}
                 onChange={(e) => setField('id_type', e.target.value)}
-                options={ID_TYPES.map((t) => ({ value: t.value, label: `${t.label} — ${t.so}` }))}
+                options={ID_TYPES}
               />
               <Input
                 label={idNumberLabel}
@@ -455,10 +517,11 @@ export default function NewClient() {
             >
               {servicesByCategory.map(([category, list]) => (
                 <optgroup key={category} label={category}>
+                  {/* Name only. The price belongs in the Amount box below,
+                      which still fills from this choice. */}
                   {list.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} — {currency}
-                      {Number(s.price).toFixed(2)}
+                      {s.name}
                     </option>
                   ))}
                 </optgroup>
@@ -534,7 +597,7 @@ export default function NewClient() {
               size="lg"
               loading={save.isPending}
             >
-              Save Client
+              {isEditingDraft ? 'Complete Registration' : 'Save Client'}
             </Button>
 
             <Button
