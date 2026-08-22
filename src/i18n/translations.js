@@ -92,6 +92,7 @@ export const translations = {
     'role.finance': 'Maaliyadda',
 
     // ---------- statuses ----------
+    'status.draft': 'Qabyo',
     'status.registered': 'La Diiwaangeliyay',
     'status.waiting_admin_approval': 'Sugaya Ansixinta Maamulaha',
     'status.waiting_alt': 'Sugaya ALT',
@@ -239,6 +240,7 @@ export const translations = {
     'role.alt': 'ALT Department',
     'role.finance': 'Finance',
 
+    'status.draft': 'Draft',
     'status.registered': 'Registered',
     'status.waiting_admin_approval': 'Waiting Admin Approval',
     'status.waiting_alt': 'Waiting ALT',

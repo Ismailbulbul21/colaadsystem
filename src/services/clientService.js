@@ -88,7 +88,9 @@ export async function createClient({ client, details }) {
       address: client.address?.trim() || null, // Banadir district
       service_id: client.service_id,
       reference_no: client.reference_no?.trim() || null, // ministry reference
-      status: 'waiting_alt',
+      // A draft is parked before the workflow starts: ALT is not told about
+      // it and Finance cannot take money for it.
+      status: client.status === 'draft' ? 'draft' : 'waiting_alt',
       // The office asked for the amount to be changeable per client. The
       // trigger still falls back to the service price when this is null, and
       // still rejects a negative figure.

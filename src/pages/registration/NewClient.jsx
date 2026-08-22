@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Save, AlertTriangle, UserPlus, Info } from 'lucide-react'
+import { Save, AlertTriangle, UserPlus, Info, FileClock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 
@@ -158,6 +158,26 @@ export default function NewClient() {
     setErrors({})
   }
 
+  /**
+   * A draft is deliberately lenient: the point is to park unfinished work.
+   * It still needs a name and a phone, because the client row cannot exist
+   * without them, and a service, because the price and reference hang off it.
+   */
+  const validateDraft = () => {
+    const next = {}
+    if (!form.service_id) next.service_id = 'Choose a service before saving a draft.'
+    const name = isTwoParty ? (details.p1_full_name ?? '') : form.full_name
+    const phone = isTwoParty ? (details.p1_phone ?? '') : form.phone
+    if (!String(name).trim()) {
+      next[isTwoParty ? 'p1_full_name' : 'full_name'] = 'A name is needed even for a draft.'
+    }
+    if (!String(phone).trim()) {
+      next[isTwoParty ? 'p1_phone' : 'phone'] = 'A phone number is needed even for a draft.'
+    }
+    setErrors(next)
+    return Object.keys(next).length === 0
+  }
+
   const validate = () => {
     const next = {}
     if (!form.service_id) next.service_id = 'Choose a service.'
@@ -192,7 +212,7 @@ export default function NewClient() {
   }
 
   const save = useMutation({
-    mutationFn: () =>
+    mutationFn: (status) =>
       createClient({
         // On a two-party service the client IS Party 1, so the record takes
         // its name, phone and ID from there rather than from a duplicate
@@ -200,12 +220,13 @@ export default function NewClient() {
         client: isTwoParty
           ? {
               ...form,
+              status,
               full_name: (details.p1_full_name ?? '').trim(),
               phone: (details.p1_phone ?? '').trim(),
               national_id: (details.p1_id_number ?? '').trim() || null,
               id_type: null,
             }
-          : form,
+          : { ...form, status },
         details: (fields.data ?? []).map((f) => ({
           field_key: f.field_key,
           label: f.label,
@@ -215,14 +236,27 @@ export default function NewClient() {
           value: details[f.field_key],
         })),
       }),
-    onSuccess: (data) => {
-      toast.success(`Client registered — ${data.registration_no}`)
+    onSuccess: (data, status) => {
+      toast.success(
+        status === 'draft'
+          ? `Draft saved — ${data.registration_no}`
+          : `Client registered — ${data.registration_no}`,
+      )
       queryClient.invalidateQueries({ queryKey: ['clients'] })
       queryClient.invalidateQueries({ queryKey: ['stats'] })
       navigate(`/clients/${data.id}`)
     },
     onError: (error) => toast.error(friendlyError(error)),
   })
+
+  const handleSaveDraft = () => {
+    if (save.isPending) return
+    if (!validateDraft()) {
+      toast.error('A draft still needs a service, a name and a phone number.')
+      return
+    }
+    save.mutate('draft')
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -235,7 +269,7 @@ export default function NewClient() {
       setDuplicateModal(true)
       return
     }
-    save.mutate()
+    save.mutate("waiting_alt")
   }
 
   if (services.isLoading) return <FormSkeleton fields={7} />
@@ -277,9 +311,21 @@ export default function NewClient() {
         description="Fill in the client details and choose the service they need."
         breadcrumbs={[{ label: 'Registration', to: '/registration' }, { label: 'New Client' }]}
         actions={
-          <Button type="submit" icon={Save} size="lg" loading={save.isPending}>
-            Save Client
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              icon={FileClock}
+              size="lg"
+              disabled={save.isPending}
+              onClick={handleSaveDraft}
+            >
+              Save as Draft
+            </Button>
+            <Button type="submit" icon={Save} size="lg" loading={save.isPending}>
+              Save Client
+            </Button>
+          </>
         }
       />
 
@@ -431,28 +477,33 @@ export default function NewClient() {
               />
             </div>
 
+            {/* Always in the same place, so choosing a service does not make
+                the panel jump. Empty and disabled until a service is picked,
+                then filled with its price and editable. */}
+            <div className="mt-5">
+              <Input
+                label="Amount"
+                required
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.original_price}
+                onChange={(e) => setField('original_price', e.target.value)}
+                error={errors.original_price}
+                disabled={!selectedService}
+                placeholder={selectedService ? undefined : 'Choose a service first'}
+                hint={
+                  !selectedService
+                    ? 'Appears once you choose a service'
+                    : priceChanged
+                      ? `List price is ${currency}${Number(selectedService.price).toFixed(2)}`
+                      : 'Filled from the service price — change it if needed'
+                }
+              />
+            </div>
+
             {selectedService && (
               <>
-                <div className="mt-5">
-                  {/* The office asked for this to be editable per client. The
-                      service price fills it in; the clerk can change it. */}
-                  <Input
-                    label="Amount"
-                    required
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={form.original_price}
-                    onChange={(e) => setField('original_price', e.target.value)}
-                    error={errors.original_price}
-                    hint={
-                      priceChanged
-                        ? `List price is ${currency}${Number(selectedService.price).toFixed(2)}`
-                        : 'Filled from the service price — change it if needed'
-                    }
-                  />
-                </div>
-
                 {selectedService.description && (
                   <p className="mt-4 rounded-lg bg-surface-muted px-3 py-2.5 text-xs leading-relaxed text-slate-600">
                     {selectedService.description}
@@ -485,6 +536,20 @@ export default function NewClient() {
             >
               Save Client
             </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              icon={FileClock}
+              className="mt-2 w-full"
+              disabled={save.isPending}
+              onClick={handleSaveDraft}
+            >
+              Save as Draft
+            </Button>
+            <p className="mt-2 text-center text-2xs leading-snug text-ink-400">
+              A draft is not sent to ALT and cannot be paid for until you finish it.
+            </p>
           </div>
         </div>
       </div>
@@ -504,7 +569,7 @@ export default function NewClient() {
               loading={save.isPending}
               onClick={() => {
                 setDuplicateModal(false)
-                save.mutate()
+                save.mutate("waiting_alt")
               }}
             >
               Yes, register anyway

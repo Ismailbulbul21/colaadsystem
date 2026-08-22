@@ -39,6 +39,7 @@ export const STATUS_ORDER = [
 ]
 
 export const STATUS_META = {
+  draft: { label: 'Draft', tone: 'slate' },
   registered: { label: 'Registered', tone: 'slate' },
   waiting_admin_approval: { label: 'Waiting Admin Approval', tone: 'amber' },
   waiting_alt: { label: 'Waiting ALT', tone: 'blue' },
