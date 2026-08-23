@@ -101,7 +101,7 @@ export default function DocumentCenter() {
       <PageHeader
         title="Document Center"
         description="Every uploaded document, with its version history and print count."
-        breadcrumbs={[{ label: 'ALT', to: '/alt' }, { label: 'Document Center' }]}
+        breadcrumbs={[{ label: 'Nootaayo', to: '/alt' }, { label: 'Document Center' }]}
       />
 
       <div className="mb-4 card p-4">
@@ -128,7 +128,7 @@ export default function DocumentCenter() {
         onRowClick={(d) => navigate(`/clients/${d.client_id}`)}
         emptyIcon={FolderOpen}
         emptyTitle="No documents uploaded yet"
-        emptyDescription="Documents appear here once ALT uploads a finished file."
+        emptyDescription="Documents appear here once Nootaayo uploads a finished file."
         exportFileName="documents"
       />
     </>

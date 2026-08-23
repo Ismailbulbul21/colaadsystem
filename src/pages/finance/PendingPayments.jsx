@@ -22,7 +22,7 @@ export default function PendingPayments() {
         lockedStatus="waiting_payment"
         exportName="pending-payments"
         emptyTitle="No payments waiting"
-        emptyDescription="Clients appear here as soon as ALT marks their document complete."
+        emptyDescription="Clients appear here as soon as Nootaayo marks their document complete."
         rowActions={(row) => (
           <Link to={`/clients/${row.id}`}>
             <Button size="sm" icon={Wallet}>

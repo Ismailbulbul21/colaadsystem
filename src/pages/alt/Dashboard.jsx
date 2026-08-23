@@ -43,7 +43,7 @@ export default function AltDashboard() {
   return (
     <>
       <PageHeader
-        title="ALT Department"
+        title="Nootaayo Department"
         description="Prepare each document in Microsoft Word, then upload the finished file here."
         actions={
           <Link to="/alt/queue">

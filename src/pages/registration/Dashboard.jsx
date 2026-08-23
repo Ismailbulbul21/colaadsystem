@@ -63,7 +63,7 @@ export default function RegistrationDashboard() {
             hint="Discount pending"
           />
           <StatCard
-            label="Waiting ALT"
+            label="Waiting Nootaayo"
             value={s.waitingAlt}
             icon={FileText}
             tone="blue"

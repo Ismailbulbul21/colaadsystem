@@ -125,7 +125,7 @@ export default function AdminDashboard() {
               icon={FileText}
               tone="blue"
               to="/alt/queue"
-              hint="With the ALT department"
+              hint="With the Nootaayo department"
             />
             <StatCard
               label="Waiting Payments"

@@ -11,7 +11,7 @@ export default function WorkQueue() {
       <PageHeader
         title="Work Queue"
         description="Clients waiting for their legal document. Prepare it in Microsoft Word, then upload the finished file."
-        breadcrumbs={[{ label: 'ALT', to: '/alt' }, { label: 'Work Queue' }]}
+        breadcrumbs={[{ label: 'Nootaayo', to: '/alt' }, { label: 'Work Queue' }]}
       />
       <ClientListView
         baseFilters={{ status: 'waiting_alt' }}

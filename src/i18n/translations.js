@@ -35,7 +35,7 @@ export const translations = {
     'auth.noSignup': 'Xisaabaha waxaa sameeya Maamulaha. Isdiiwaangelin bannaan ma jirto.',
     'auth.tagline': 'Macmiil kasta, dukumiinti kasta iyo lacag kasta hal diiwaan sugan.',
     'auth.blurb':
-      'Diiwaangelintu waxay qaadaa macmiilka, ALT waxay diyaarisaa dukumiintiga sharciga ah, Maaliyaddu waxay qaadaa lacagta — tallaabo kastana waa la diiwaangeliyaa, waa joogto, waana la ilaaliyaa sida doorka.',
+      'Diiwaangelintu waxay qaadaa macmiilka, Nootaayadu waxay diyaarisaa dukumiintiga sharciga ah, Maaliyaddu waxay qaadaa lacagta — tallaabo kastana waa la diiwaangeliyaa, waa joogto, waana la ilaaliyaa sida doorka.',
 
     // ---------- change password ----------
     'pw.title': 'Deji furahaaga',
@@ -90,7 +90,7 @@ export const translations = {
     // ---------- roles ----------
     'role.admin': 'Maamulaha',
     'role.registration': 'Diiwaangelinta',
-    'role.alt': 'Waaxda ALT',
+    'role.alt': 'Waaxda Nootaayada',
     'role.finance': 'Maaliyadda',
     'role.archive': 'Kaydiyaha Diiwaanka',
 
@@ -98,7 +98,7 @@ export const translations = {
     'status.draft': 'Qabyo',
     'status.registered': 'La Diiwaangeliyay',
     'status.waiting_admin_approval': 'Sugaya Ansixinta Maamulaha',
-    'status.waiting_alt': 'Sugaya ALT',
+    'status.waiting_alt': 'Sugaya Nootaayada',
     'status.document_uploaded': 'Dukumiintiga La Soo Geliyay',
     'status.waiting_payment': 'Sugaya Lacag-bixin',
     'status.paid': 'La Bixiyay',
@@ -191,7 +191,7 @@ export const translations = {
     'auth.noSignup': 'Accounts are created by the Administrator. There is no public sign-up.',
     'auth.tagline': 'Every client, document and payment in one secure record.',
     'auth.blurb':
-      'Registration takes the client, ALT prepares the legal document, Finance receives the payment — and every step is logged, permanent and protected by role.',
+      'Registration takes the client, Nootaayo prepares the legal document, Finance receives the payment — and every step is logged, permanent and protected by role.',
 
     'pw.title': 'Set your password',
     'pw.subtitle': 'you are signed in with a temporary password. Choose your own before continuing.',
@@ -242,14 +242,14 @@ export const translations = {
 
     'role.admin': 'Administrator',
     'role.registration': 'Registration',
-    'role.alt': 'ALT Department',
+    'role.alt': 'Nootaayo Department',
     'role.finance': 'Finance',
     'role.archive': 'Archive & Records Officer',
 
     'status.draft': 'Draft',
     'status.registered': 'Registered',
     'status.waiting_admin_approval': 'Waiting Admin Approval',
-    'status.waiting_alt': 'Waiting ALT',
+    'status.waiting_alt': 'Waiting Nootaayo',
     'status.document_uploaded': 'Document Uploaded',
     'status.waiting_payment': 'Waiting Payment',
     'status.paid': 'Paid',

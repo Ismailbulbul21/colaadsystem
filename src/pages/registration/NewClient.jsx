@@ -360,7 +360,7 @@ export default function NewClient() {
         title={isEditingDraft ? 'Continue Draft' : 'Register New Client'}
         description={
           isEditingDraft
-            ? 'Carry on where you left off. Save it as a draft again, or finish it to send it to ALT.'
+            ? 'Carry on where you left off. Save it as a draft again, or finish it to send it to Nootaayo.'
             : 'Fill in the client details and choose the service they need.'
         }
         breadcrumbs={
@@ -611,7 +611,7 @@ export default function NewClient() {
               Save as Draft
             </Button>
             <p className="mt-2 text-center text-2xs leading-snug text-ink-400">
-              A draft is not sent to ALT and cannot be paid for until you finish it.
+              A draft is not sent to Nootaayo and cannot be paid for until you finish it.
             </p>
           </div>
         </div>

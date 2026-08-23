@@ -14,7 +14,7 @@ export const ROLE_LABELS = {
   admin: 'Administrator',
   archive: 'Archive & Records Officer',
   registration: 'Registration',
-  alt: 'ALT Department',
+  alt: 'Nootaayo Department',
   finance: 'Finance',
 }
 
@@ -44,7 +44,7 @@ export const STATUS_META = {
   draft: { label: 'Draft', tone: 'slate' },
   registered: { label: 'Registered', tone: 'slate' },
   waiting_admin_approval: { label: 'Waiting Admin Approval', tone: 'amber' },
-  waiting_alt: { label: 'Waiting ALT', tone: 'blue' },
+  waiting_alt: { label: 'Waiting Nootaayo', tone: 'blue' },
   document_uploaded: { label: 'Document Uploaded', tone: 'indigo' },
   waiting_payment: { label: 'Waiting Payment', tone: 'orange' },
   paid: { label: 'Paid', tone: 'emerald' },
@@ -131,7 +131,7 @@ export const ARCHIVE_STATUSES = [
 /** Used to tag an expense or income to the part of the office it belongs to. */
 export const DEPARTMENTS = [
   { value: 'Registration', label: 'Registration' },
-  { value: 'ALT', label: 'ALT' },
+  { value: 'ALT', label: 'Nootaayo' },
   { value: 'Finance', label: 'Finance' },
   { value: 'Administration', label: 'Administration' },
 ]
