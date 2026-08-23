@@ -7,10 +7,12 @@ export const ROLES = {
   REGISTRATION: 'registration',
   ALT: 'alt',
   FINANCE: 'finance',
+  ARCHIVE: 'archive',
 }
 
 export const ROLE_LABELS = {
   admin: 'Administrator',
+  archive: 'Archive & Records Officer',
   registration: 'Registration',
   alt: 'ALT Department',
   finance: 'Finance',
@@ -110,6 +112,22 @@ export const ID_TYPES = [
 
 export const ID_TYPE_LABELS = Object.fromEntries(ID_TYPES.map((t) => [t.value, t.label]))
 
+/** Kinds of paper the office notarised before this system existed. */
+export const ARCHIVE_DOCUMENT_TYPES = [
+  { value: 'Contract', label: 'Contract' },
+  { value: 'Sale Agreement', label: 'Sale Agreement' },
+  { value: 'Power of Attorney', label: 'Power of Attorney' },
+  { value: 'Affidavit', label: 'Affidavit' },
+  { value: 'Declaration', label: 'Declaration' },
+  { value: 'Translation', label: 'Translation' },
+  { value: 'Other', label: 'Other' },
+]
+
+export const ARCHIVE_STATUSES = [
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
+
 /** Used to tag an expense or income to the part of the office it belongs to. */
 export const DEPARTMENTS = [
   { value: 'Registration', label: 'Registration' },
@@ -180,7 +198,9 @@ export const NAV_ITEMS = [
   { to: '/finance/reports', tKey: 'nav.reports', label: 'Reports', icon: 'BarChart3', roles: ['admin'] },
   { to: '/alt/documents', tKey: 'nav.documents', label: 'Documents', icon: 'FolderOpen', roles: ['admin'] },
 
-  { to: '/clients', tKey: 'nav.clientSearch', label: 'Client Search', icon: 'Search', roles: ['admin', 'registration', 'alt', 'finance'] },
+  { to: '/archive', tKey: 'nav.archive', label: 'Archive', icon: 'Archive', roles: ['admin', 'archive'], end: true },
+
+  { to: '/clients', tKey: 'nav.clientSearch', label: 'Client Search', icon: 'Search', roles: ['admin', 'registration', 'alt', 'finance', 'archive'] },
 ]
 
 export const HOME_BY_ROLE = {
@@ -188,4 +208,6 @@ export const HOME_BY_ROLE = {
   registration: '/registration',
   alt: '/alt',
   finance: '/finance',
+  // The Archive officer has one job, so the archive itself is their home.
+  archive: '/archive',
 }

@@ -61,6 +61,7 @@ export const translations = {
     'nav.officeSettings': 'Dejinta Xafiiska',
     'nav.activityLogs': 'Diiwaanka Dhaqdhaqaaqa',
     'nav.backup': 'Kaydinta Xogta',
+    'nav.archive': 'Kaydka Hore',
     'nav.newClient': 'Macmiil Cusub',
     'nav.drafts': 'Qabyo-qoraallada',
     'nav.myClients': 'Macaamiishayda',
@@ -91,6 +92,7 @@ export const translations = {
     'role.registration': 'Diiwaangelinta',
     'role.alt': 'Waaxda ALT',
     'role.finance': 'Maaliyadda',
+    'role.archive': 'Kaydiyaha Diiwaanka',
 
     // ---------- statuses ----------
     'status.draft': 'Qabyo',
@@ -213,6 +215,7 @@ export const translations = {
     'nav.officeSettings': 'Office Settings',
     'nav.activityLogs': 'Activity Logs',
     'nav.backup': 'Backup',
+    'nav.archive': 'Archive',
     'nav.newClient': 'New Client',
     'nav.drafts': 'Drafts',
     'nav.myClients': 'My Clients',
@@ -241,6 +244,7 @@ export const translations = {
     'role.registration': 'Registration',
     'role.alt': 'ALT Department',
     'role.finance': 'Finance',
+    'role.archive': 'Archive & Records Officer',
 
     'status.draft': 'Draft',
     'status.registered': 'Registered',

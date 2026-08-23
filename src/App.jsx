@@ -20,6 +20,7 @@ const PendingDiscounts = lazy(() => import('./pages/admin/PendingDiscounts'))
 const OfficeSettings   = lazy(() => import('./pages/admin/OfficeSettings'))
 const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
 const Backup           = lazy(() => import('./pages/admin/Backup'))
+const Archive          = lazy(() => import('./pages/archive/Archive'))
 const CreateInvoice    = lazy(() => import('./pages/finance/CreateInvoice'))
 const RecordIncome     = lazy(() => import('./pages/finance/RecordIncome'))
 const Drafts           = lazy(() => import('./pages/registration/Drafts'))
@@ -99,6 +100,11 @@ export default function App() {
             <Route path="/admin/settings" element={<OfficeSettings />} />
             <Route path="/admin/logs" element={<ActivityLogs />} />
             <Route path="/admin/backup" element={<Backup />} />
+          </Route>
+
+          {/* Archive: the paper backlog, open to Admin and the Archive officer */}
+          <Route element={<ProtectedRoute roles={['admin', 'archive']} />}>
+            <Route path="/archive" element={<Archive />} />
           </Route>
 
           {/* ---------- Registration ---------- */}
