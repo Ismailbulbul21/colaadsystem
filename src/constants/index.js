@@ -112,17 +112,6 @@ export const ID_TYPES = [
 
 export const ID_TYPE_LABELS = Object.fromEntries(ID_TYPES.map((t) => [t.value, t.label]))
 
-/** Kinds of paper the office notarised before this system existed. */
-export const ARCHIVE_DOCUMENT_TYPES = [
-  { value: 'Contract', label: 'Contract' },
-  { value: 'Sale Agreement', label: 'Sale Agreement' },
-  { value: 'Power of Attorney', label: 'Power of Attorney' },
-  { value: 'Affidavit', label: 'Affidavit' },
-  { value: 'Declaration', label: 'Declaration' },
-  { value: 'Translation', label: 'Translation' },
-  { value: 'Other', label: 'Other' },
-]
-
 export const ARCHIVE_STATUSES = [
   { value: 'completed', label: 'Completed' },
   { value: 'cancelled', label: 'Cancelled' },

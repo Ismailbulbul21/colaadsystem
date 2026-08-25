@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Save, RotateCcw, Info, UploadCloud, X, FileText, Search, BarChart3,
+  Save, RotateCcw, UploadCloud, X, FileText, Search, BarChart3,
   CheckCircle2, AlertTriangle, Eye, Archive as ArchiveIcon,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -11,7 +11,7 @@ import PageHeader from '../../components/ui/PageHeader'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import DataTable from '../../components/table/DataTable'
-import { Input, Select, Textarea } from '../../components/ui/Field'
+import { Input, Select } from '../../components/ui/Field'
 import { useTableState } from '../../hooks/useTableState'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useAuth } from '../../contexts/AuthContext'
@@ -24,7 +24,7 @@ import {
 import { friendlyError } from '../../utils/errors'
 import { formatDate, formatDateTime, formatFileSize } from '../../utils/format'
 import { qk, LONG_CACHE } from '../../lib/queryClient'
-import { ARCHIVE_DOCUMENT_TYPES, ARCHIVE_STATUSES, MAX_UPLOAD_BYTES, ALLOWED_DOCUMENT_TYPES } from '../../constants'
+import { ARCHIVE_STATUSES, MAX_UPLOAD_BYTES, ALLOWED_DOCUMENT_TYPES } from '../../constants'
 
 const ARCHIVE_STATUS_LABELS = Object.fromEntries(ARCHIVE_STATUSES.map((s) => [s.value, s.label]))
 
@@ -34,13 +34,9 @@ const EMPTY = {
   reference_no: '',
   client_name: '',
   client_phone: '',
-  document_type: '',
   service_name: '',
   document_date: '',
-  ministry_reg_no: '',
   status: 'completed',
-  amount: '',
-  notes: '',
 }
 
 /**
@@ -115,7 +111,6 @@ export default function Archive() {
     if (!form.reference_no.trim()) next.reference_no = 'Enter the reference written on the document.'
     else if (refState === 'duplicate') next.reference_no = 'This reference is already in the archive.'
     if (!form.client_name.trim()) next.client_name = 'Enter the client name.'
-    if (!form.document_type) next.document_type = 'Choose the document type.'
     if (!form.service_name) next.service_name = 'Choose the service.'
     if (!form.document_date) next.document_date = 'Enter the date on the document.'
     else if (form.document_date > new Date().toISOString().slice(0, 10)) {
@@ -177,7 +172,6 @@ export default function Archive() {
     () => [
       { key: 'reference_no', header: 'Olad Ref (NR)', sortable: true, className: 'tabular font-medium text-navy-700' },
       { key: 'client_name', header: 'Client' },
-      { key: 'document_type', header: 'Document Type' },
       { key: 'service_name', header: 'Service' },
       { key: 'document_date', header: 'Doc Date', sortable: true, render: (r) => formatDate(r.document_date) },
       { key: 'ministry_reg_no', header: 'Ministry Reg. No.', render: (r) => r.ministry_reg_no || '—' },
@@ -295,25 +289,6 @@ export default function Archive() {
                 <Input label="Client Phone" value={form.client_phone} onChange={set('client_phone')} hint="Optional" />
 
                 <Select
-                  label="Document Type"
-                  required
-                  placeholder="Choose…"
-                  value={form.document_type}
-                  onChange={set('document_type')}
-                  error={errors.document_type}
-                  options={ARCHIVE_DOCUMENT_TYPES}
-                />
-                <Input
-                  label="Document Date"
-                  required
-                  type="date"
-                  value={form.document_date}
-                  onChange={set('document_date')}
-                  error={errors.document_date}
-                  hint="The date on the paper"
-                />
-
-                <Select
                   label="Service"
                   required
                   placeholder="Choose…"
@@ -331,7 +306,15 @@ export default function Archive() {
                     </optgroup>
                   ))}
                 </Select>
-                <Input label="Ministry Registration No." value={form.ministry_reg_no} onChange={set('ministry_reg_no')} hint="Optional" />
+                <Input
+                  label="Document Date"
+                  required
+                  type="date"
+                  value={form.document_date}
+                  onChange={set('document_date')}
+                  error={errors.document_date}
+                  hint="The date on the paper"
+                />
 
                 <Select
                   label="Status"
@@ -339,24 +322,6 @@ export default function Archive() {
                   value={form.status}
                   onChange={set('status')}
                   options={ARCHIVE_STATUSES}
-                />
-                <Input
-                  label="Amount"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.amount}
-                  onChange={set('amount')}
-                  hint="Optional — what was charged at the time"
-                />
-
-                <Textarea
-                  label="Description / Notes"
-                  value={form.notes}
-                  onChange={set('notes')}
-                  rows={3}
-                  hint="Optional"
-                  wrapperClassName="sm:col-span-2"
                 />
               </div>
             </div>
@@ -402,25 +367,6 @@ export default function Archive() {
 
           {/* ---------- guidance ---------- */}
           <div className="space-y-5 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900/40 dark:bg-emerald-950/20">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-emerald-900 dark:text-emerald-200">
-                <Info className="h-4 w-4" /> Important
-              </h3>
-              <ul className="space-y-2 text-[13px] leading-relaxed text-emerald-900/90 dark:text-emerald-200/90">
-                {[
-                  'Use the existing reference number only.',
-                  'Do not create a new reference number.',
-                  'If the reference already exists, the form will stop you.',
-                  'Archived documents are searchable and included in reports.',
-                ].map((line) => (
-                  <li key={line} className="flex gap-2">
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
             <div className="card p-5">
               <h3 className="mb-3 text-sm font-semibold text-ink-800">Reference number</h3>
               <p className="text-center font-mono text-sm tabular text-navy-700">
@@ -487,16 +433,19 @@ export default function Archive() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Input
                 label="Search"
-                placeholder="Reference, client, type…"
+                placeholder="Reference, client, service…"
                 defaultValue={f.q ?? ''}
                 onChange={(e) => table.setFilter('q', e.target.value)}
               />
               <Select
-                label="Document type"
-                placeholder="All types"
-                value={f.type ?? ''}
-                onChange={(e) => table.setFilter('type', e.target.value)}
-                options={ARCHIVE_DOCUMENT_TYPES}
+                label="Service"
+                placeholder="All services"
+                value={f.service ?? ''}
+                onChange={(e) => table.setFilter('service', e.target.value)}
+                options={[...new Map((services.data ?? []).map((s) => [s.name, s.name])).keys()].map((name) => ({
+                  value: name,
+                  label: name,
+                }))}
               />
               <Select
                 label="Status"
@@ -551,7 +500,6 @@ export default function Archive() {
 
           {[
             ['By year', summary.data?.byYear],
-            ['By document type', summary.data?.byType],
             ['By service', summary.data?.byService],
           ].map(([title, rows]) => (
             <div key={title} className="card p-6">

@@ -22,9 +22,9 @@ export async function listArchived({ filters = {}, range, sort } = {}) {
 
   if (filters.q) {
     const like = `%${filters.q}%`
-    q = q.or(`reference_no.ilike.${like},client_name.ilike.${like},document_type.ilike.${like},ministry_reg_no.ilike.${like}`)
+    q = q.or(`reference_no.ilike.${like},client_name.ilike.${like},service_name.ilike.${like},ministry_reg_no.ilike.${like}`)
   }
-  if (filters.type) q = q.eq('document_type', filters.type)
+  if (filters.service) q = q.eq('service_name', filters.service)
   if (filters.status) q = q.eq('status', filters.status)
   if (filters.year) {
     q = q.gte('document_date', `${filters.year}-01-01`).lte('document_date', `${filters.year}-12-31`)
@@ -42,14 +42,10 @@ export async function addArchivedDocument(doc) {
   const { data, error } = await supabase.rpc('add_archived_document', {
     p_reference_no: doc.reference_no.trim(),
     p_client_name: doc.client_name.trim(),
-    p_document_type: doc.document_type,
     p_service_name: doc.service_name,
     p_document_date: doc.document_date,
     p_status: doc.status || 'completed',
-    p_ministry_reg_no: doc.ministry_reg_no?.trim() || null,
-    p_amount: doc.amount === '' || doc.amount == null ? null : Number(doc.amount),
     p_client_phone: doc.client_phone?.trim() || null,
-    p_notes: doc.notes?.trim() || null,
     p_file_path: doc.file_path ?? null,
     p_file_name: doc.file_name ?? null,
     p_file_size: doc.file_size ?? null,
@@ -90,19 +86,17 @@ export async function scanUrl(path) {
 export async function archiveSummary() {
   const { data, error } = await supabase
     .from('archived_documents')
-    .select('document_date, document_type, service_name, amount')
+    .select('document_date, service_name, amount')
     .is('deleted_at', null)
   if (error) throw error
 
   const byYear = new Map()
-  const byType = new Map()
   const byService = new Map()
   let total = 0
 
   for (const row of data ?? []) {
     const year = String(row.document_date).slice(0, 4)
     byYear.set(year, (byYear.get(year) ?? 0) + 1)
-    byType.set(row.document_type, (byType.get(row.document_type) ?? 0) + 1)
     byService.set(row.service_name, (byService.get(row.service_name) ?? 0) + 1)
     total += 1
   }
@@ -113,7 +107,6 @@ export async function archiveSummary() {
   return {
     total,
     byYear: [...byYear.entries()].sort((a, b) => String(b[0]).localeCompare(String(a[0]))),
-    byType: sorted(byType),
     byService: sorted(byService),
   }
 }
