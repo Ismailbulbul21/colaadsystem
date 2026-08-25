@@ -62,6 +62,7 @@ export const translations = {
     'nav.activityLogs': 'Diiwaanka Dhaqdhaqaaqa',
     'nav.backup': 'Kaydinta Xogta',
     'nav.archive': 'Kaydka Hore',
+    'nav.sabarlog': 'Sabarlog',
     'nav.newClient': 'Macmiil Cusub',
     'nav.drafts': 'Qabyo-qoraallada',
     'nav.myClients': 'Macaamiishayda',
@@ -93,6 +94,7 @@ export const translations = {
     'role.alt': 'Waaxda Nootaayada',
     'role.finance': 'Maaliyadda',
     'role.archive': 'Kaydiyaha Diiwaanka',
+    'role.sabarlog': 'Sarkaalka Sabarlogga',
 
     // ---------- statuses ----------
     'status.draft': 'Qabyo',
@@ -216,6 +218,7 @@ export const translations = {
     'nav.activityLogs': 'Activity Logs',
     'nav.backup': 'Backup',
     'nav.archive': 'Archive',
+    'nav.sabarlog': 'Sabarlog',
     'nav.newClient': 'New Client',
     'nav.drafts': 'Drafts',
     'nav.myClients': 'My Clients',
@@ -245,6 +248,7 @@ export const translations = {
     'role.alt': 'Nootaayo Department',
     'role.finance': 'Finance',
     'role.archive': 'Archive & Records Officer',
+    'role.sabarlog': 'Sabarlog Officer',
 
     'status.draft': 'Draft',
     'status.registered': 'Registered',

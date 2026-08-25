@@ -21,6 +21,7 @@ const OfficeSettings   = lazy(() => import('./pages/admin/OfficeSettings'))
 const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
 const Backup           = lazy(() => import('./pages/admin/Backup'))
 const Archive          = lazy(() => import('./pages/archive/Archive'))
+const Sabarlog         = lazy(() => import('./pages/sabarlog/Sabarlog'))
 const CreateInvoice    = lazy(() => import('./pages/finance/CreateInvoice'))
 const RecordIncome     = lazy(() => import('./pages/finance/RecordIncome'))
 const Drafts           = lazy(() => import('./pages/registration/Drafts'))
@@ -105,6 +106,11 @@ export default function App() {
           {/* Archive: the paper backlog, open to Admin and the Archive officer */}
           <Route element={<ProtectedRoute roles={['admin', 'archive']} />}>
             <Route path="/archive" element={<Archive />} />
+          </Route>
+
+          {/* Sabarlog: land deeds, open to Admin and the Sabarlog officer */}
+          <Route element={<ProtectedRoute roles={['admin', 'sabarlog']} />}>
+            <Route path="/sabarlog" element={<Sabarlog />} />
           </Route>
 
           {/* ---------- Registration ---------- */}

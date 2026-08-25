@@ -8,11 +8,13 @@ export const ROLES = {
   ALT: 'alt',
   FINANCE: 'finance',
   ARCHIVE: 'archive',
+  SABARLOG: 'sabarlog',
 }
 
 export const ROLE_LABELS = {
   admin: 'Administrator',
   archive: 'Archive & Records Officer',
+  sabarlog: 'Sabarlog Officer',
   registration: 'Registration',
   alt: 'Nootaayo Department',
   finance: 'Finance',
@@ -188,8 +190,9 @@ export const NAV_ITEMS = [
   { to: '/alt/documents', tKey: 'nav.documents', label: 'Documents', icon: 'FolderOpen', roles: ['admin'] },
 
   { to: '/archive', tKey: 'nav.archive', label: 'Archive', icon: 'Archive', roles: ['admin', 'archive'], end: true },
+  { to: '/sabarlog', tKey: 'nav.sabarlog', label: 'Sabarlog', icon: 'Map', roles: ['admin', 'sabarlog'], end: true },
 
-  { to: '/clients', tKey: 'nav.clientSearch', label: 'Client Search', icon: 'Search', roles: ['admin', 'registration', 'alt', 'finance', 'archive'] },
+  { to: '/clients', tKey: 'nav.clientSearch', label: 'Client Search', icon: 'Search', roles: ['admin', 'registration', 'alt', 'finance', 'archive', 'sabarlog'] },
 ]
 
 export const HOME_BY_ROLE = {
@@ -199,4 +202,6 @@ export const HOME_BY_ROLE = {
   finance: '/finance',
   // The Archive officer has one job, so the archive itself is their home.
   archive: '/archive',
+  // The Sabarlog officer has one job, so the deeds are their home.
+  sabarlog: '/sabarlog',
 }
