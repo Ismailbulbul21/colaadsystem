@@ -34,10 +34,12 @@ const LABIXIYAY_COLUMNS =
  * What a range would produce, before anything is saved:
  * { state:'ok'|'clash'|'error', count, lots[], taken[], message? }
  */
-export async function previewLotRange(from, to) {
+export async function previewLotRange(from, to, excludeSabarlogId = null) {
   const { data, error } = await supabase.rpc('preview_lot_range', {
     p_from: from,
     p_to: to,
+    // When editing, a deed's own lots are not a clash with itself.
+    p_exclude_sabarlog: excludeSabarlogId,
   })
   if (error) throw error
   return data
@@ -101,17 +103,24 @@ export async function addSabarlog(form) {
 }
 
 /**
- * Lot numbers are not editable: they identify pieces of land that buyers are
- * already attached to, so changing one by hand would move a sale to a
- * different plot without anyone noticing.
+ * The last four arguments are Administrator-only and are sent as null for
+ * anyone else, which the database reads as "leave as it is". Changing a range
+ * recalculates the lots; a lot that would be removed while carrying a sale
+ * blocks the whole edit rather than quietly detaching its buyer.
  */
-export async function updateSabarlog(id, form) {
+export async function updateSabarlog(id, form, { asAdmin = false } = {}) {
   const { data, error } = await supabase.rpc('update_sabarlog', {
     p_id: id,
     p_company_owner: form.company_owner.trim(),
     p_registered_date: form.registered_date,
     p_total_size: form.total_size?.trim() || null,
     p_registered_by_name: form.registered_by_name?.trim() || null,
+    p_sabarlog_no: asAdmin ? form.sabarlog_no?.trim() || null : null,
+    p_lot_structure: asAdmin ? form.lot_structure || null : null,
+    p_lot_from: asAdmin ? form.lot_from?.trim() || null : null,
+    p_lot_to: asAdmin && form.lot_structure === 'range'
+      ? form.lot_to?.trim() || null
+      : null,
   })
   if (error) throw error
   return data

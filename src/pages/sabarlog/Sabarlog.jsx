@@ -300,6 +300,8 @@ function LotsPanel({ sabarlogId }) {
 /* ================================================================= deeds */
 
 function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
+  // Only the Administrator may move a deed's identity or its land.
+  const canEditIdentity = isAdmin
   const [form, setForm] = useState(EMPTY_DEED)
   const [editing, setEditing] = useState(null)
   const [errors, setErrors] = useState({})
@@ -320,17 +322,21 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
   const noCheck = useQuery({
     queryKey: ['sabarlog-no', debouncedNo],
     queryFn: () => checkSabarlogNo(debouncedNo),
-    enabled: !editing && debouncedNo.trim().length > 0,
+    enabled: (!editing || canEditIdentity) && debouncedNo.trim().length > 0,
   })
-  const noState = editing ? null : noCheck.data?.state
+  // While editing, the deed's own number is not a clash with itself.
+  const noState =
+    editing && noCheck.data?.sabarlog_no === editing.sabarlog_no
+      ? 'free'
+      : noCheck.data?.state
 
   // Shows "this will create 11 lots" before anything is saved.
   const dFrom = useDebounce(form.lot_from, 450)
   const dTo = useDebounce(form.lot_to, 450)
   const preview = useQuery({
-    queryKey: ['sabarlog-range', dFrom, dTo],
-    queryFn: () => previewLotRange(dFrom, dTo),
-    enabled: !editing && form.lot_structure === 'range'
+    queryKey: ['sabarlog-range', dFrom, dTo, editing?.id ?? null],
+    queryFn: () => previewLotRange(dFrom, dTo, editing?.id ?? null),
+    enabled: (!editing || canEditIdentity) && form.lot_structure === 'range'
              && dFrom.trim().length > 0 && dTo.trim().length > 0,
   })
 
@@ -361,7 +367,7 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
 
   const validate = () => {
     const next = {}
-    if (!editing) {
+    if (!editing || canEditIdentity) {
       if (!form.sabarlog_no.trim()) next.sabarlog_no = 'Geli lambarka sabarlogga.'
       else if (noState === 'duplicate') next.sabarlog_no = 'Lambarkan horay ayaa loo diiwaan geliyay.'
       if (!form.lot_from.trim()) next.lot_from = 'Geli lambarka lot-ka.'
@@ -380,7 +386,7 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (editing) return updateSabarlog(editing.id, form)
+      if (editing) return updateSabarlog(editing.id, form, { asAdmin: canEditIdentity })
       let scan = {}
       if (file) {
         setUploading(true)
@@ -461,8 +467,12 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
               <Input
                 label="Sabarlog No." required value={form.sabarlog_no}
                 onChange={set('sabarlog_no')} error={errors.sabarlog_no}
-                disabled={!!editing} placeholder="R-001/2026"
-                hint={editing ? 'Lambarka lama beddeli karo.' : 'Sida ku qoran buugga.'}
+                disabled={!!editing && !canEditIdentity} placeholder="R-001/2026"
+                hint={
+                  !editing ? 'Sida ku qoran buugga.'
+                  : canEditIdentity ? 'Maamulaha wuu beddeli karaa.'
+                  : 'Lambarka lama beddeli karo.'
+                }
               />
               {!editing && debouncedNo.trim().length > 0 && !noCheck.isFetching && (
                 <>
@@ -485,7 +495,7 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
                    onChange={set('company_owner')} error={errors.company_owner} />
 
             {/* ---- lot structure ---- */}
-            {editing ? (
+            {editing && !canEditIdentity ? (
               <Input label="Lots" value={rangeLabel(editing)} disabled
                      hint="Lots-ka lama beddeli karo — waxaa ku xiran iibiyayaal." />
             ) : (
@@ -566,7 +576,8 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
             <Button type="submit" icon={Save} className="flex-1"
                     loading={save.isPending || uploading}
                     disabled={noState === 'duplicate'
-                              || (!editing && isRange && preview.data?.state !== 'ok')}>
+                              || ((!editing || canEditIdentity) && isRange
+                                  && preview.data?.state !== 'ok')}>
               {editing ? 'Kaydi beddelka' : 'Kaydi'}
             </Button>
           </div>
