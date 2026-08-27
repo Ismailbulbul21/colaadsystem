@@ -176,17 +176,14 @@ export const NAV_ITEMS = [
   { to: '/alt/queue', tKey: 'nav.workQueue', label: 'Work Queue', icon: 'Inbox', roles: ['alt'], badge: 'altQueue' },
   { to: '/alt/documents', tKey: 'nav.documentCenter', label: 'Document Center', icon: 'FolderOpen', roles: ['alt'] },
 
-  { to: '/finance', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['finance'], end: true },
-  { to: '/finance/pending', tKey: 'nav.pendingPayments', label: 'Pending Payments', icon: 'Wallet', roles: ['finance'], badge: 'pendingPayments' },
-  { to: '/finance/receipts', tKey: 'nav.receipts', label: 'Receipts', icon: 'ReceiptText', roles: ['finance'] },
-  { to: '/finance/invoices', tKey: 'nav.invoices', label: 'Invoices', icon: 'FileText', roles: ['finance'] },
-  { to: '/finance/expenses', tKey: 'nav.expenses', label: 'Expenses', icon: 'TrendingDown', roles: ['finance'] },
-  { to: '/finance/reports', tKey: 'nav.reports', label: 'Reports', icon: 'BarChart3', roles: ['finance'] },
+  // The office replaced the payments/receipts screens with a hand-entered
+  // ledger. Those pages still exist at /finance/old but are off the menu.
+  { to: '/finance', tKey: 'nav.finance', label: 'Finance', icon: 'Wallet', roles: ['finance'], end: true },
+  { to: '/finance/daily-report', tKey: 'nav.dailyReport', label: 'Daily Report', icon: 'FileBarChart', roles: ['finance'] },
 
   // Admin reaches every department view through its own section
-  { to: '/finance/pending', tKey: 'nav.payments', label: 'Payments', icon: 'Wallet', roles: ['admin'], badge: 'pendingPayments' },
-  { to: '/finance/expenses', tKey: 'nav.expenses', label: 'Expenses', icon: 'TrendingDown', roles: ['admin'] },
-  { to: '/finance/reports', tKey: 'nav.reports', label: 'Reports', icon: 'BarChart3', roles: ['admin'] },
+  { to: '/finance', tKey: 'nav.finance', label: 'Finance', icon: 'Wallet', roles: ['admin'] },
+  { to: '/finance/daily-report', tKey: 'nav.dailyReport', label: 'Daily Report', icon: 'FileBarChart', roles: ['admin'] },
   { to: '/alt/documents', tKey: 'nav.documents', label: 'Documents', icon: 'FolderOpen', roles: ['admin'] },
 
   { to: '/archive', tKey: 'nav.archive', label: 'Archive', icon: 'Archive', roles: ['admin', 'archive'], end: true },

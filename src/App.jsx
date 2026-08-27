@@ -35,6 +35,9 @@ const WorkQueue     = lazy(() => import('./pages/alt/WorkQueue'))
 const DocumentCenter= lazy(() => import('./pages/alt/DocumentCenter'))
 
 const FinanceDashboard = lazy(() => import('./pages/finance/Dashboard'))
+const Ledger           = lazy(() => import('./pages/finance/Ledger'))
+const DailyReport      = lazy(() => import('./pages/finance/DailyReport'))
+const LedgerSetup      = lazy(() => import('./pages/finance/LedgerSetup'))
 const PendingPayments  = lazy(() => import('./pages/finance/PendingPayments'))
 const Receipts         = lazy(() => import('./pages/finance/Receipts'))
 const Invoices         = lazy(() => import('./pages/finance/Invoices'))
@@ -132,7 +135,12 @@ export default function App() {
 
           {/* ---------- Finance ---------- */}
           <Route element={<ProtectedRoute roles={['admin', 'finance']} />}>
-            <Route path="/finance" element={<FinanceDashboard />} />
+            <Route path="/finance" element={<Ledger />} />
+            <Route path="/finance/daily-report" element={<DailyReport />} />
+            <Route path="/finance/setup" element={<LedgerSetup />} />
+            {/* Superseded by the ledger above, kept reachable by URL so the
+                client-payment workflow and its receipts are not lost. */}
+            <Route path="/finance/old" element={<FinanceDashboard />} />
             <Route path="/finance/pending" element={<PendingPayments />} />
             <Route path="/finance/receipts" element={<Receipts />} />
             <Route path="/finance/invoices" element={<Invoices />} />
