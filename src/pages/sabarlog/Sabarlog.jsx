@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Save, RotateCcw, UploadCloud, X, FileText, BarChart3, Pencil, Trash2,
-  CheckCircle2, AlertTriangle, Eye, Map as MapIcon, Layers, LogOut,
+  CheckCircle2, AlertTriangle, Eye, Map as MapIcon, Layers, LogOut, Grid3x3,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -12,47 +12,51 @@ import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import DataTable from '../../components/table/DataTable'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
-import { Input } from '../../components/ui/Field'
+import { Input, Select } from '../../components/ui/Field'
 import { useTableState } from '../../hooks/useTableState'
 import { useDebounce } from '../../hooks/useDebounce'
 import { useAuth } from '../../contexts/AuthContext'
 import {
-  checkSabarlogNo, checkLot,
-  listSabarlogs, addSabarlog, updateSabarlog,
+  checkSabarlogNo, previewLotRange,
+  listSabarlogs, addSabarlog, updateSabarlog, listLots, lotsOfSabarlog,
   listDhabarKaDil, addDhabarKaDil, updateDhabarKaDil,
   listLaBixiyay, addLaBixiyay, updateLaBixiyay,
-  deleteSabarlogRecord, uploadScan, scanUrl,
-  sabarlogSummary,
+  deleteSabarlogRecord, uploadScan, scanUrl, sabarlogSummary,
 } from '../../services/sabarlogService'
 import { friendlyError } from '../../utils/errors'
 import { formatDate, formatFileSize } from '../../utils/format'
 import { MAX_UPLOAD_BYTES, ALLOWED_DOCUMENT_TYPES } from '../../constants'
 
 const TABS = [
-  { key: 'register', label: 'Diiwaan geli Sabarlog', en: 'Register Sabarlog' },
-  { key: 'previous', label: 'Sabarlog Hore', en: 'Previous Sabarlog' },
-  { key: 'dhabar', label: 'Dhabar-ka-dil', en: 'Dhabar-ka-dil' },
-  { key: 'labixiyay', label: 'La-bixiyay', en: 'La-bixiyay' },
-  { key: 'reports', label: 'Warbixin', en: 'Reports' },
+  { key: 'register', label: 'Diiwaan geli Sabarlog' },
+  { key: 'previous', label: 'Sabarlog Hore' },
+  { key: 'dhabar', label: 'Dhabar-ka-dil' },
+  { key: 'labixiyay', label: 'La-bixiyay' },
+  { key: 'reports', label: 'Warbixin' },
 ]
 
 const EMPTY_DEED = {
-  sabarlog_no: '', company_owner: '', lot_no: '',
+  sabarlog_no: '', company_owner: '',
+  lot_structure: 'single', lot_from: '', lot_to: '',
   total_size: '', registered_date: '', registered_by_name: '',
 }
-const EMPTY_DHABAR = { lot_no: '', owner_wakiil: '', notary_ref: '', land_size: '', entry_date: '' }
-const EMPTY_LABIX = { lot_no: '', taken_by: '', land_size: '', taken_date: '' }
+const EMPTY_DHABAR = { lot_id: '', owner_wakiil: '', notary_ref: '', land_size: '', entry_date: '' }
+const EMPTY_LABIX = { lot_id: '', taken_by: '', land_size: '', taken_date: '' }
 
 const today = () => new Date().toISOString().slice(0, 10)
+
+const rangeLabel = (r) =>
+  r.lot_structure === 'range' && r.lot_to !== r.lot_from
+    ? `${r.lot_from} – ${r.lot_to}`
+    : r.lot_from
 
 /**
  * Sabarlog — land deeds.
  *
- * A deed covers one lot and is subdivided and sold to many buyers; each sale
- * is endorsed on the back (dhabar-ka-dil). The paper itself is signed out of
- * the archive from time to time (la-bixiyay). Both of those attach to a deed
- * by lot number, so the lot box checks itself as it is typed and refuses a
- * lot that has no deed — the office's own rule.
+ * A sabarlog is a BLOCK covering a range of lot numbers, and the system
+ * creates one child lot per number. A buyer takes one lot of their own, so
+ * the lot is chosen from a list rather than typed — which is also what makes
+ * "one buyer per lot" possible to show before the clerk commits to it.
  */
 export default function Sabarlog() {
   const [tab, setTab] = useState('register')
@@ -61,23 +65,16 @@ export default function Sabarlog() {
   const queryClient = useQueryClient()
 
   const refreshAll = () => {
-    queryClient.invalidateQueries({ queryKey: ['sabarlogs'] })
-    queryClient.invalidateQueries({ queryKey: ['dhabar'] })
-    queryClient.invalidateQueries({ queryKey: ['labixiyay'] })
-    queryClient.invalidateQueries({ queryKey: ['sabarlog-summary'] })
-    queryClient.invalidateQueries({ queryKey: ['sabarlog-years'] })
+    for (const k of ['sabarlogs', 'sabarlog-lots', 'dhabar', 'labixiyay', 'sabarlog-summary']) {
+      queryClient.invalidateQueries({ queryKey: [k] })
+    }
   }
 
-  // Deleting is Admin-only and reaches three different tables, so one dialog
-  // serves all of them rather than three near-identical copies.
+  // Deleting is Admin-only and reaches three tables, so one dialog serves all.
   const [pendingDelete, setPendingDelete] = useState(null)
   const del = useMutation({
     mutationFn: ({ kind, id }) => deleteSabarlogRecord(kind, id),
-    onSuccess: () => {
-      toast.success('Waa la tirtiray')
-      setPendingDelete(null)
-      refreshAll()
-    },
+    onSuccess: () => { toast.success('Waa la tirtiray'); setPendingDelete(null); refreshAll() },
     onError: (e) => toast.error(friendlyError(e)),
   })
 
@@ -129,7 +126,7 @@ export default function Sabarlog() {
         title="Tirtir diiwaankan?"
         message={
           pendingDelete
-            ? `${pendingDelete.label} — diiwaanku wuu qarsoomayaa, lakiin lama tirtirayo gebi ahaanba. Waxaa arki kara Maamulaha oo keliya.`
+            ? `${pendingDelete.label} — diiwaanku wuu qarsoomayaa, laakiin lama tirtirayo gebi ahaanba.`
             : ''
         }
         confirmLabel="Haa, tirtir"
@@ -144,79 +141,81 @@ export default function Sabarlog() {
 
 /* ============================================================ shared bits */
 
-/**
- * One place that answers "is there a deed for this lot?".
- *
- * Both the green/red message and the Save button need the answer, so it is
- * resolved once here. Keeping the debounced value in the query key AND in the
- * fetch matters: keying on the debounced text while fetching the live text
- * would look up whatever had been typed by the time the timer fired.
- */
-function useLotCheck(lotNo, enabled = true) {
-  const debounced = useDebounce(lotNo, 450)
-  const query = useQuery({
-    queryKey: ['sabarlog-lot', debounced],
-    queryFn: () => checkLot(debounced),
-    enabled: enabled && debounced.trim().length > 0,
-  })
-  return { ...query, debounced }
-}
-
-function LotBox({ value, onChange, error, hint, check }) {
-  const { debounced } = check
-  const state = check.data?.state
-
+function rowActions({ isAdmin, onEdit, onDelete, row, kind, label }) {
   return (
-    <div>
-      <Input
-        label="Lot Number"
-        required
-        value={value}
-        onChange={onChange}
-        error={error}
-        placeholder="2666 K"
-        hint={hint}
-      />
-      {debounced.trim().length > 0 && !check.isFetching && (
-        <>
-          {state === 'found' && (
-            <p className="mt-1.5 flex items-start gap-1.5 text-xs font-medium text-emerald-700">
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <span>
-                {check.data.company_owner} — {check.data.total_size || 'cabbir lama qorin'}
-                <span className="text-emerald-600/70"> ({check.data.sabarlog_no})</span>
-              </span>
-            </p>
-          )}
-          {state === 'missing' && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Sabarlog lotkan ma laha. Marka hore diiwaan geli sabarlogga.
-            </p>
-          )}
-        </>
+    <div className="flex items-center justify-end gap-1">
+      <Button size="sm" variant="ghost" icon={Pencil} onClick={() => onEdit(row)}>Beddel</Button>
+      {isAdmin && (
+        <Button size="sm" variant="ghost" icon={Trash2}
+                className="text-red-600 hover:bg-red-50"
+                onClick={() => onDelete({ kind, id: row.id, label: label(row) })}>
+          Tirtir
+        </Button>
       )}
     </div>
   )
 }
 
-/** Shared row actions. Edit is open to the officer; delete is Admin-only. */
-function rowActions({ isAdmin, onEdit, onDelete, row, label }) {
+/**
+ * The lot picker. Sold lots stay in the list, marked with the buyer's name —
+ * the office wanted to see them rather than have them silently disappear.
+ * `blockSold` decides whether picking one is actually refused: a sale is
+ * blocked, but signing the paper out is not, since that is not a sale.
+ */
+function LotSelect({ value, onChange, error, blockSold, disabled, hint }) {
+  const [search, setSearch] = useState('')
+  const debounced = useDebounce(search, 350)
+
+  const lots = useQuery({
+    queryKey: ['sabarlog-lots', debounced],
+    queryFn: () => listLots({ search: debounced || undefined }),
+    enabled: !disabled,
+    keepPreviousData: true,
+  })
+
+  const chosen = (lots.data ?? []).find((l) => l.lot_id === value)
+
   return (
-    <div className="flex items-center justify-end gap-1">
-      <Button size="sm" variant="ghost" icon={Pencil} onClick={() => onEdit(row)}>
-        Beddel
-      </Button>
-      {isAdmin && (
-        <Button
-          size="sm"
-          variant="ghost"
-          icon={Trash2}
-          className="text-red-600 hover:bg-red-50"
-          onClick={() => onDelete({ kind: label.kind, id: row.id, label: label.text(row) })}
-        >
-          Tirtir
-        </Button>
+    <div className="space-y-2">
+      {!disabled && (
+        <Input
+          label="Raadi lot"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="1207…"
+          hint="Ku qor si aad u yarayso liiska"
+        />
+      )}
+      <Select
+        label="Lot Number"
+        required
+        placeholder={lots.isLoading ? 'Waa la soo raraya…' : 'Dooro lot…'}
+        value={value}
+        onChange={onChange}
+        error={error}
+        disabled={disabled}
+        hint={hint}
+        options={(lots.data ?? []).map((l) => ({
+          value: l.lot_id,
+          label: `${l.lot_no} — ${l.sabarlog_no}${l.is_sold ? `  •  LA IIBIYAY (${l.buyer_name})` : ''}`,
+        }))}
+      />
+      {chosen && (
+        <p className={clsx(
+          'flex items-start gap-1.5 text-xs font-medium',
+          chosen.is_sold && blockSold ? 'text-red-600'
+            : chosen.is_sold ? 'text-amber-700' : 'text-emerald-700',
+        )}>
+          {chosen.is_sold && blockSold
+            ? <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            : <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+          <span>
+            {chosen.company_owner} — {chosen.land_size || 'cabbir lama qorin'}
+            {chosen.is_sold && (
+              <> · <strong>{blockSold ? 'Lotkan horay ayaa loo iibiyay' : 'La iibiyay'}: {chosen.buyer_name}</strong></>
+            )}
+          </span>
+        </p>
       )}
     </div>
   )
@@ -225,13 +224,9 @@ function rowActions({ isAdmin, onEdit, onDelete, row, label }) {
 function ScanPicker({ file, setFile }) {
   const pick = (chosen) => {
     if (!chosen) return
-    if (!ALLOWED_DOCUMENT_TYPES[chosen.type]) {
-      toast.error('PDF ama Word oo keliya.')
-      return
-    }
+    if (!ALLOWED_DOCUMENT_TYPES[chosen.type]) { toast.error('PDF ama Word oo keliya.'); return }
     if (chosen.size > MAX_UPLOAD_BYTES) {
-      toast.error(`Faylku waa ${formatFileSize(chosen.size)}. Xadku waa 10 MB.`)
-      return
+      toast.error(`Faylku waa ${formatFileSize(chosen.size)}. Xadku waa 10 MB.`); return
     }
     setFile(chosen)
   }
@@ -244,30 +239,61 @@ function ScanPicker({ file, setFile }) {
           <p className="truncate text-sm font-medium text-ink-800">{file.name}</p>
           <p className="text-xs text-ink-400">{formatFileSize(file.size)}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setFile(null)}
-          className="rounded p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
-          aria-label="Ka saar faylka"
-        >
+        <button type="button" onClick={() => setFile(null)}
+                className="rounded p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+                aria-label="Ka saar faylka">
           <X className="h-4 w-4" />
         </button>
       </div>
     )
   }
-
   return (
     <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-surface-border px-4 py-6 text-center transition-colors hover:border-navy-300 hover:bg-navy-50/40">
       <UploadCloud className="h-6 w-6 text-ink-400" />
       <span className="text-sm font-medium text-navy-700">Dooro fayl</span>
       <span className="text-xs text-ink-400">PDF ama Word, ilaa 10 MB</span>
-      <input
-        type="file"
-        className="sr-only"
-        accept=".pdf,.doc,.docx"
-        onChange={(e) => pick(e.target.files?.[0])}
-      />
+      <input type="file" className="sr-only" accept=".pdf,.doc,.docx"
+             onChange={(e) => pick(e.target.files?.[0])} />
     </label>
+  )
+}
+
+/** The lot numbers a saved deed produced. */
+function LotsPanel({ sabarlogId }) {
+  const lots = useQuery({
+    queryKey: ['sabarlog-lots', 'of', sabarlogId],
+    queryFn: () => lotsOfSabarlog(sabarlogId),
+    enabled: !!sabarlogId,
+  })
+  if (!sabarlogId || !lots.data?.length) return null
+
+  return (
+    <div className="card mt-4 p-5">
+      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-800">
+        <Grid3x3 className="h-4 w-4 text-ink-400" />
+        Lots-ka la sameeyay
+        <Badge tone="navy">{lots.data.length}</Badge>
+      </h3>
+      <div className="flex flex-wrap gap-1.5">
+        {lots.data.map((l) => (
+          <span
+            key={l.lot_id}
+            title={l.is_sold ? `La iibiyay: ${l.buyer_name}` : 'Banaan'}
+            className={clsx(
+              'rounded-md px-2.5 py-1 text-xs font-medium tabular',
+              l.is_sold
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200'
+                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300',
+            )}
+          >
+            {l.lot_no}
+          </span>
+        ))}
+      </div>
+      <p className="mt-3 border-t border-surface-border pt-3 text-xs text-ink-400">
+        <span className="mr-3">🟩 Banaan</span><span>🟧 La iibiyay</span>
+      </p>
+    </div>
   )
 }
 
@@ -279,6 +305,7 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
   const [errors, setErrors] = useState({})
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [lastSaved, setLastSaved] = useState(null)
 
   const table = useTableState({ defaultSort: { key: 'registered_date', dir: 'desc' } })
   const f = table.filters
@@ -297,13 +324,23 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
   })
   const noState = editing ? null : noCheck.data?.state
 
+  // Shows "this will create 11 lots" before anything is saved.
+  const dFrom = useDebounce(form.lot_from, 450)
+  const dTo = useDebounce(form.lot_to, 450)
+  const preview = useQuery({
+    queryKey: ['sabarlog-range', dFrom, dTo],
+    queryFn: () => previewLotRange(dFrom, dTo),
+    enabled: !editing && form.lot_structure === 'range'
+             && dFrom.trim().length > 0 && dTo.trim().length > 0,
+  })
+
   const set = (k) => (e) => {
     setForm((p) => ({ ...p, [k]: e.target.value }))
     setErrors((p) => ({ ...p, [k]: undefined }))
   }
 
   const reset = () => {
-    setForm(EMPTY_DEED); setEditing(null); setErrors({}); setFile(null)
+    setForm(EMPTY_DEED); setEditing(null); setErrors({}); setFile(null); setLastSaved(null)
   }
 
   const startEdit = (row) => {
@@ -311,21 +348,30 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
     setForm({
       sabarlog_no: row.sabarlog_no,
       company_owner: row.company_owner,
-      lot_no: row.lot_no,
+      lot_structure: row.lot_structure,
+      lot_from: row.lot_from ?? '',
+      lot_to: row.lot_to ?? '',
       total_size: row.total_size ?? '',
       registered_date: row.registered_date,
       registered_by_name: row.registered_by_name ?? '',
     })
-    setErrors({}); setFile(null)
+    setErrors({}); setFile(null); setLastSaved(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const validate = () => {
     const next = {}
-    if (!form.sabarlog_no.trim()) next.sabarlog_no = 'Geli lambarka sabarlogga.'
-    else if (noState === 'duplicate') next.sabarlog_no = 'Lambarkan horay ayaa loo diiwaan geliyay.'
+    if (!editing) {
+      if (!form.sabarlog_no.trim()) next.sabarlog_no = 'Geli lambarka sabarlogga.'
+      else if (noState === 'duplicate') next.sabarlog_no = 'Lambarkan horay ayaa loo diiwaan geliyay.'
+      if (!form.lot_from.trim()) next.lot_from = 'Geli lambarka lot-ka.'
+      if (form.lot_structure === 'range') {
+        if (!form.lot_to.trim()) next.lot_to = 'Geli lot-ka ugu dambeeya.'
+        else if (preview.data?.state === 'error') next.lot_to = preview.data.message
+        else if (preview.data?.state === 'clash') next.lot_to = 'Qaar ka mid ah lots-ka horay ayaa loo diiwaan geliyay.'
+      }
+    }
     if (!form.company_owner.trim()) next.company_owner = 'Geli shirkadda ama milkiilaha.'
-    if (!form.lot_no.trim()) next.lot_no = 'Geli lambarka lot-ka.'
     if (!form.registered_date) next.registered_date = 'Geli taariikhda.'
     else if (form.registered_date > today()) next.registered_date = 'Taariikhdu mustaqbalka ma noqon karto.'
     setErrors(next)
@@ -341,19 +387,19 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
         try {
           scan = await uploadScan(file, form.sabarlog_no)
         } catch (e) {
-          // The typing matters more than the attachment — save the record and
-          // say the scan failed rather than losing a filled-in form.
+          // The typing matters more than the attachment.
           toast.error(`Diiwaanku wuu kaydsanayaa, laakiin faylku ma soo gelin: ${friendlyError(e)}`)
           scan = {}
-        } finally {
-          setUploading(false)
-        }
+        } finally { setUploading(false) }
       }
       return addSabarlog({ ...form, ...scan, is_previous: isPrevious })
     },
     onSuccess: (d) => {
-      toast.success(editing ? 'Waa la beddelay' : `Waa la kaydiyay — ${d.sabarlog_no}`)
+      if (editing) toast.success('Waa la beddelay')
+      else toast.success(`Waa la kaydiyay — ${d.sabarlog_no} (${d.total_lots} lot)`)
+      const savedId = editing ? null : d.id
       reset()
+      setLastSaved(savedId)
       onChanged()
     },
     onError: (e) => toast.error(friendlyError(e)),
@@ -374,8 +420,9 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
   const columns = useMemo(() => [
     { key: 'sabarlog_no', header: 'Sabarlog No.', sortable: true, className: 'tabular font-medium text-navy-700' },
     { key: 'company_owner', header: 'Shirkad / Milkiile' },
-    { key: 'lot_no', header: 'Lot No.', className: 'tabular' },
-    { key: 'total_size', header: 'Cabirka', render: (r) => r.total_size || '—' },
+    { key: 'lot_range', header: 'Lot Range', className: 'tabular', render: rangeLabel },
+    { key: 'total_lots', header: 'Total Lots', render: (r) => <Badge tone="emerald">{r.total_lots}</Badge> },
+    { key: 'total_size', header: 'Cabirka (mid kasta)', render: (r) => r.total_size || '—' },
     { key: 'registered_date', header: 'Taariikh', sortable: true, render: (r) => formatDate(r.registered_date) },
     {
       key: 'scan', header: 'Scan',
@@ -388,10 +435,12 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
       key: 'actions', header: '', align: 'right',
       render: (r) => rowActions({
         isAdmin, onEdit: startEdit, onDelete, row: r,
-        label: { kind: 'sabarlog', text: (x) => `Sabarlog ${x.sabarlog_no}` },
+        kind: 'sabarlog', label: (x) => `Sabarlog ${x.sabarlog_no}`,
       }),
     },
   ], [isAdmin])
+
+  const isRange = form.lot_structure === 'range'
 
   return (
     <div className="grid gap-5 lg:grid-cols-3">
@@ -410,13 +459,9 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
           <div className="space-y-4">
             <div>
               <Input
-                label="Sabarlog No."
-                required
-                value={form.sabarlog_no}
-                onChange={set('sabarlog_no')}
-                error={errors.sabarlog_no}
-                disabled={!!editing}
-                placeholder="R-010090126"
+                label="Sabarlog No." required value={form.sabarlog_no}
+                onChange={set('sabarlog_no')} error={errors.sabarlog_no}
+                disabled={!!editing} placeholder="R-001/2026"
                 hint={editing ? 'Lambarka lama beddeli karo.' : 'Sida ku qoran buugga.'}
               />
               {!editing && debouncedNo.trim().length > 0 && !noCheck.isFetching && (
@@ -438,10 +483,65 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
 
             <Input label="Shirkad / Milkiile" required value={form.company_owner}
                    onChange={set('company_owner')} error={errors.company_owner} />
-            <Input label="Lot No." required value={form.lot_no} onChange={set('lot_no')}
-                   error={errors.lot_no} placeholder="2666 K" />
-            <Input label="Cabirka guud" value={form.total_size} onChange={set('total_size')}
-                   placeholder="7.50 X 20 M" hint="Ikhtiyaari" />
+
+            {/* ---- lot structure ---- */}
+            {editing ? (
+              <Input label="Lots" value={rangeLabel(editing)} disabled
+                     hint="Lots-ka lama beddeli karo — waxaa ku xiran iibiyayaal." />
+            ) : (
+              <div className="rounded-lg border border-surface-border p-4">
+                <p className="label mb-2">Qaabka Lot-ka</p>
+                <div className="flex gap-4">
+                  {[['single', 'Hal Lot'], ['range', 'Lot Range / Block']].map(([v, lbl]) => (
+                    <label key={v} className="flex cursor-pointer items-center gap-2 text-sm text-ink-700">
+                      <input
+                        type="radio" name="lot_structure" value={v}
+                        checked={form.lot_structure === v}
+                        onChange={() => setForm((p) => ({ ...p, lot_structure: v, lot_to: '' }))}
+                        className="h-4 w-4 text-navy-700 focus:ring-navy-500"
+                      />
+                      {lbl}
+                    </label>
+                  ))}
+                </div>
+
+                <div className={clsx('mt-4 grid gap-3', isRange && 'sm:grid-cols-2')}>
+                  <Input
+                    label={isRange ? 'From Lot' : 'Lot Number'} required
+                    value={form.lot_from} onChange={set('lot_from')}
+                    error={errors.lot_from} placeholder="1207"
+                  />
+                  {isRange && (
+                    <Input label="To Lot" required value={form.lot_to}
+                           onChange={set('lot_to')} error={errors.lot_to} placeholder="1217" />
+                  )}
+                </div>
+
+                {isRange && preview.data && !preview.isFetching && (
+                  <div className={clsx(
+                    'mt-3 rounded-lg border p-3 text-xs',
+                    preview.data.state === 'ok'
+                      ? 'border-navy-200 bg-navy-50/60 text-navy-800 dark:border-navy-900/40 dark:bg-navy-950/20 dark:text-navy-200'
+                      : 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300',
+                  )}>
+                    {preview.data.state === 'ok' && (
+                      <>
+                        Nidaamku wuxuu si toos ah u samayn doonaa dhammaan lots-ka
+                        <strong> {form.lot_from}</strong> ilaa <strong>{form.lot_to}</strong>.
+                        <div className="mt-1 font-semibold">Wadarta Lots: {preview.data.count}</div>
+                      </>
+                    )}
+                    {preview.data.state === 'clash' && (
+                      <>Lots-kan horay ayaa loo diiwaan geliyay: <strong>{(preview.data.taken || []).join(', ')}</strong></>
+                    )}
+                    {preview.data.state === 'error' && <>{preview.data.message}</>}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <Input label="Cabirka (mid kasta)" value={form.total_size} onChange={set('total_size')}
+                   placeholder="7.50 X 20 M" hint="Cabirka HAL lot, ikhtiyaari" />
             <Input label="Taariikhda" required type="date" value={form.registered_date}
                    onChange={set('registered_date')} error={errors.registered_date} />
             <Input label="Diiwaan geliyay" value={form.registered_by_name}
@@ -465,21 +565,21 @@ function DeedTab({ isPrevious, isAdmin, profile, onChanged, onDelete }) {
             </Button>
             <Button type="submit" icon={Save} className="flex-1"
                     loading={save.isPending || uploading}
-                    disabled={noState === 'duplicate'}>
+                    disabled={noState === 'duplicate'
+                              || (!editing && isRange && preview.data?.state !== 'ok')}>
               {editing ? 'Kaydi beddelka' : 'Kaydi'}
             </Button>
           </div>
         </div>
+
+        <LotsPanel sabarlogId={lastSaved} />
       </form>
 
       <div className="lg:col-span-2">
         <div className="mb-4 card p-4">
-          <Input
-            label="Raadi"
-            placeholder="Lot, sabarlog no, shirkad…"
-            defaultValue={f.q ?? ''}
-            onChange={(e) => table.setFilter('q', e.target.value)}
-          />
+          <Input label="Raadi" placeholder="Sabarlog no, shirkad, lot…"
+                 defaultValue={f.q ?? ''}
+                 onChange={(e) => table.setFilter('q', e.target.value)} />
         </div>
         <DataTable
           columns={columns}
@@ -520,8 +620,6 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
     keepPreviousData: true,
   })
 
-  const lotCheck = useLotCheck(form.lot_no, !editing)
-
   const set = (k) => (e) => {
     setForm((p) => ({ ...p, [k]: e.target.value }))
     setErrors((p) => ({ ...p, [k]: undefined }))
@@ -531,7 +629,7 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
   const startEdit = (row) => {
     setEditing(row)
     setForm({
-      lot_no: row.lot_no,
+      lot_id: row.lot_id ?? '',
       owner_wakiil: row.owner_wakiil,
       notary_ref: row.notary_ref ?? '',
       land_size: row.land_size ?? '',
@@ -543,7 +641,7 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
 
   const validate = () => {
     const next = {}
-    if (!form.lot_no.trim()) next.lot_no = 'Geli lambarka lot-ka.'
+    if (!editing && !form.lot_id) next.lot_id = 'Dooro lot.'
     if (!form.owner_wakiil.trim()) next.owner_wakiil = 'Geli milkiilaha ama wakiilka.'
     if (!form.entry_date) next.entry_date = 'Geli taariikhda.'
     setErrors(next)
@@ -576,7 +674,7 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
       key: 'actions', header: '', align: 'right',
       render: (r) => rowActions({
         isAdmin, onEdit: startEdit, onDelete, row: r,
-        label: { kind: 'dhabar_ka_dil', text: (x) => `${x.owner_wakiil} (lot ${x.lot_no})` },
+        kind: 'dhabar_ka_dil', label: (x) => `${x.owner_wakiil} (lot ${x.lot_no})`,
       }),
     },
   ], [isAdmin])
@@ -590,23 +688,17 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
             {editing ? 'Beddel Dhabar-ka-dil' : 'Dhabar-ka-dil'}
           </h3>
           <p className="mb-5 text-[13px] text-ink-500">
-            Diiwaan geli cidda qaybta ka iibsatay sabarlogga.
+            Diiwaan geli cidda lot-ka ka iibsatay. Hal lot = hal qof.
           </p>
 
           <div className="space-y-4">
             {editing ? (
-              <Input label="Lot Number" value={form.lot_no} disabled
+              <Input label="Lot Number" value={editing.lot_no} disabled
                      hint="Lot-ka lama beddeli karo." />
             ) : (
-              <LotBox
-                value={form.lot_no}
-                onChange={set('lot_no')}
-                error={errors.lot_no}
-                hint="Sabarlogga waa inuu horay u jiraa."
-                check={lotCheck}
-              />
+              <LotSelect value={form.lot_id} onChange={set('lot_id')}
+                         error={errors.lot_id} blockSold />
             )}
-
             <Input label="Milkiile / Wakiil" required value={form.owner_wakiil}
                    onChange={set('owner_wakiil')} error={errors.owner_wakiil} />
             <Input label="Reff Number (Notary)" value={form.notary_ref}
@@ -622,8 +714,7 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
             <Button type="button" variant="secondary" icon={RotateCcw} className="flex-1" onClick={reset}>
               {editing ? 'Jooji' : 'Nadiifi'}
             </Button>
-            <Button type="submit" icon={Save} className="flex-1" loading={save.isPending}
-                    disabled={!editing && lotCheck.data?.state === 'missing'}>
+            <Button type="submit" icon={Save} className="flex-1" loading={save.isPending}>
               {editing ? 'Kaydi beddelka' : 'Kaydi'}
             </Button>
           </div>
@@ -632,30 +723,19 @@ function DhabarTab({ isAdmin, onChanged, onDelete }) {
 
       <div className="lg:col-span-2">
         <div className="mb-4 card p-4">
-          <Input
-            label="Raadi"
-            placeholder="Lot, magac, reff number…"
-            defaultValue={f.q ?? ''}
-            onChange={(e) => table.setFilter('q', e.target.value)}
-          />
+          <Input label="Raadi" placeholder="Lot, magac, reff number…"
+                 defaultValue={f.q ?? ''}
+                 onChange={(e) => table.setFilter('q', e.target.value)} />
         </div>
         <DataTable
-          columns={columns}
-          rows={list.data?.rows ?? []}
-          total={list.data?.total ?? 0}
-          loading={list.isLoading}
-          error={list.error}
-          onRetry={list.refetch}
-          page={table.page}
-          pageSize={table.pageSize}
-          onPageChange={table.setPage}
-          onPageSizeChange={table.setPageSize}
-          sort={table.sort}
-          onSortChange={table.setSort}
+          columns={columns} rows={list.data?.rows ?? []} total={list.data?.total ?? 0}
+          loading={list.isLoading} error={list.error} onRetry={list.refetch}
+          page={table.page} pageSize={table.pageSize}
+          onPageChange={table.setPage} onPageSizeChange={table.setPageSize}
+          sort={table.sort} onSortChange={table.setSort}
           emptyTitle="Weli waxba lama gelin"
           emptyDescription="Dhabar-ka-dilka wuxuu halkan ka muuqan doonaa."
-          exportFileName="dhabar-ka-dil"
-          enablePrint
+          exportFileName="dhabar-ka-dil" enablePrint
         />
       </div>
     </div>
@@ -678,8 +758,6 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
     keepPreviousData: true,
   })
 
-  const lotCheck = useLotCheck(form.lot_no, !editing)
-
   const set = (k) => (e) => {
     setForm((p) => ({ ...p, [k]: e.target.value }))
     setErrors((p) => ({ ...p, [k]: undefined }))
@@ -689,7 +767,7 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
   const startEdit = (row) => {
     setEditing(row)
     setForm({
-      lot_no: row.lot_no,
+      lot_id: row.lot_id ?? '',
       taken_by: row.taken_by,
       land_size: row.land_size ?? '',
       taken_date: row.taken_date,
@@ -700,7 +778,7 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
 
   const validate = () => {
     const next = {}
-    if (!form.lot_no.trim()) next.lot_no = 'Geli lambarka lot-ka.'
+    if (!editing && !form.lot_id) next.lot_id = 'Dooro lot.'
     if (!form.taken_by.trim()) next.taken_by = 'Geli qofka qaaday.'
     if (!form.taken_date) next.taken_date = 'Geli taariikhda.'
     setErrors(next)
@@ -732,7 +810,7 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
       key: 'actions', header: '', align: 'right',
       render: (r) => rowActions({
         isAdmin, onEdit: startEdit, onDelete, row: r,
-        label: { kind: 'la_bixiyay', text: (x) => `${x.taken_by} (lot ${x.lot_no})` },
+        kind: 'la_bixiyay', label: (x) => `${x.taken_by} (lot ${x.lot_no})`,
       }),
     },
   ], [isAdmin])
@@ -751,18 +829,12 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
 
           <div className="space-y-4">
             {editing ? (
-              <Input label="Lot Number" value={form.lot_no} disabled
+              <Input label="Lot Number" value={editing.lot_no} disabled
                      hint="Lot-ka lama beddeli karo." />
             ) : (
-              <LotBox
-                value={form.lot_no}
-                onChange={set('lot_no')}
-                error={errors.lot_no}
-                hint="Sabarlogga waa inuu horay u jiraa."
-                check={lotCheck}
-              />
+              <LotSelect value={form.lot_id} onChange={set('lot_id')} error={errors.lot_id}
+                         hint="Lot la iibiyay wuu bixi karaa — waa la ogol yahay." />
             )}
-
             <Input label="Qofka Qaaday (Owner/Wakiil)" required value={form.taken_by}
                    onChange={set('taken_by')} error={errors.taken_by} />
             <Input label="Taariikhda La-qaaday" required type="date" value={form.taken_date}
@@ -775,8 +847,7 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
             <Button type="button" variant="secondary" icon={RotateCcw} className="flex-1" onClick={reset}>
               {editing ? 'Jooji' : 'Nadiifi'}
             </Button>
-            <Button type="submit" icon={Save} className="flex-1" loading={save.isPending}
-                    disabled={!editing && lotCheck.data?.state === 'missing'}>
+            <Button type="submit" icon={Save} className="flex-1" loading={save.isPending}>
               {editing ? 'Kaydi beddelka' : 'Kaydi'}
             </Button>
           </div>
@@ -785,30 +856,19 @@ function LaBixiyayTab({ isAdmin, onChanged, onDelete }) {
 
       <div className="lg:col-span-2">
         <div className="mb-4 card p-4">
-          <Input
-            label="Raadi"
-            placeholder="Lot ama magac…"
-            defaultValue={f.q ?? ''}
-            onChange={(e) => table.setFilter('q', e.target.value)}
-          />
+          <Input label="Raadi" placeholder="Lot ama magac…"
+                 defaultValue={f.q ?? ''}
+                 onChange={(e) => table.setFilter('q', e.target.value)} />
         </div>
         <DataTable
-          columns={columns}
-          rows={list.data?.rows ?? []}
-          total={list.data?.total ?? 0}
-          loading={list.isLoading}
-          error={list.error}
-          onRetry={list.refetch}
-          page={table.page}
-          pageSize={table.pageSize}
-          onPageChange={table.setPage}
-          onPageSizeChange={table.setPageSize}
-          sort={table.sort}
-          onSortChange={table.setSort}
+          columns={columns} rows={list.data?.rows ?? []} total={list.data?.total ?? 0}
+          loading={list.isLoading} error={list.error} onRetry={list.refetch}
+          page={table.page} pageSize={table.pageSize}
+          onPageChange={table.setPage} onPageSizeChange={table.setPageSize}
+          sort={table.sort} onSortChange={table.setSort}
           emptyTitle="Weli waxba lama gelin"
           emptyDescription="Warqadaha la bixiyay waxay halkan ka muuqan doonaan."
-          exportFileName="sabarlog-la-bixiyay"
-          enablePrint
+          exportFileName="sabarlog-la-bixiyay" enablePrint
         />
       </div>
     </div>
@@ -823,14 +883,16 @@ function ReportsTab() {
 
   const cards = [
     ['Sabarlog guud', s?.totalDeeds ?? 0, 'Dhammaan sabarlogyada'],
-    ['Dhabar-ka-dil', s?.totalSales ?? 0, 'Qaybaha la iibiyay'],
+    ['Lots guud', s?.totalLots ?? 0, 'Dhammaan lots-ka la sameeyay'],
+    ['La iibiyay', s?.soldLots ?? 0, 'Lots leh iibsade'],
+    ['Banaan', s?.freeLots ?? 0, 'Lots aan weli la iibin'],
     ['La-bixiyay', s?.totalTaken ?? 0, 'Warqadaha la qaaday'],
     ['Sabarlog hore', s?.previous ?? 0, 'Kuwii hore ee la geliyay'],
   ]
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map(([title, value, hint]) => (
           <div key={title} className="card p-6">
             <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-800">
@@ -842,11 +904,10 @@ function ReportsTab() {
         ))}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-5 lg:grid-cols-2">
         {[
-          ['Sanad ahaan', s?.byYear],
-          ['Shirkad ahaan', s?.byCompany],
-          ['Lot-yada ugu badan qaybsanaanta', s?.byLot],
+          ['Sanad ahaan (sabarlog)', s?.byYear],
+          ['Shirkad ahaan (lots)', s?.byCompany],
         ].map(([title, rows]) => (
           <div key={title} className="card p-6">
             <h3 className="mb-4 text-sm font-semibold text-ink-800">{title}</h3>
