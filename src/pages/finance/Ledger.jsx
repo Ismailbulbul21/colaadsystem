@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import {
   Save, RotateCcw, Plus, Minus, Search, Pencil, Trash2, Eye, FileText,
   Wallet, Landmark, Smartphone, TrendingUp, TrendingDown, X, UploadCloud,
-  Settings2, FileBarChart,
+  Settings2, FileBarChart, ReceiptText, FileSpreadsheet,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -22,6 +22,7 @@ import {
   financeSummary, listTransactions, addTransaction, updateTransaction,
   deleteTransaction, listTypes, listMethods, uploadAttachment, attachmentUrl,
 } from '../../services/financeLedgerService'
+import { issueReceipt } from '../../services/billingService'
 import { friendlyError } from '../../utils/errors'
 import { formatDate, formatFileSize } from '../../utils/format'
 import { MAX_UPLOAD_BYTES } from '../../constants'
@@ -90,6 +91,15 @@ export default function Ledger() {
     queryClient.invalidateQueries({ queryKey: ['finance-txns'] })
   }
 
+  // A receipt can be raised from any income line that does not already have
+  // one; the database refuses a second, so the client never gets two proofs
+  // of the same money.
+  const receipt = useMutation({
+    mutationFn: (id) => issueReceipt(id),
+    onSuccess: (d) => { toast.success(`Receipt ${d.receipt_no} issued`); refresh() },
+    onError: (e) => toast.error(friendlyError(e)),
+  })
+
   const del = useMutation({
     mutationFn: (id) => deleteTransaction(id),
     onSuccess: () => { toast.success('Deleted'); setPendingDelete(null); refresh() },
@@ -155,6 +165,14 @@ export default function Ledger() {
               Receipt
             </Button>
           )}
+          {r.kind === 'income' && (
+            <Button size="sm" variant="ghost" icon={ReceiptText}
+                    className="text-navy-700 hover:bg-navy-50"
+                    loading={receipt.isPending && receipt.variables === r.id}
+                    onClick={() => receipt.mutate(r.id)}>
+              Receipt
+            </Button>
+          )}
           <Button size="sm" variant="ghost" icon={Pencil}
                   onClick={() => { setEditing(r); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
             Edit
@@ -167,7 +185,7 @@ export default function Ledger() {
         </div>
       ),
     },
-  ], [money])
+  ], [money, receipt])
 
   return (
     <>
@@ -179,6 +197,12 @@ export default function Ledger() {
           <div className="flex flex-wrap items-center gap-2">
             <Input type="date" value={day} onChange={(e) => setDay(e.target.value)}
                    wrapperClassName="mb-0" />
+            <Link to="/finance/invoices">
+              <Button variant="secondary" icon={FileSpreadsheet}>Invoices</Button>
+            </Link>
+            <Link to="/finance/receipts">
+              <Button variant="secondary" icon={ReceiptText}>Receipts</Button>
+            </Link>
             <Link to="/finance/daily-report">
               <Button variant="secondary" icon={FileBarChart}>Daily Report</Button>
             </Link>

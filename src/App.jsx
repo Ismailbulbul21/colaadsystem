@@ -38,9 +38,11 @@ const FinanceDashboard = lazy(() => import('./pages/finance/Dashboard'))
 const Ledger           = lazy(() => import('./pages/finance/Ledger'))
 const DailyReport      = lazy(() => import('./pages/finance/DailyReport'))
 const LedgerSetup      = lazy(() => import('./pages/finance/LedgerSetup'))
+const LedgerInvoices   = lazy(() => import('./pages/finance/Invoices'))
+const LedgerReceipts   = lazy(() => import('./pages/finance/Receipts'))
 const PendingPayments  = lazy(() => import('./pages/finance/PendingPayments'))
-const Receipts         = lazy(() => import('./pages/finance/Receipts'))
-const Invoices         = lazy(() => import('./pages/finance/Invoices'))
+const LegacyReceipts   = lazy(() => import('./pages/finance/LegacyReceipts'))
+const LegacyInvoices   = lazy(() => import('./pages/finance/LegacyInvoices'))
 const Expenses         = lazy(() => import('./pages/finance/Expenses'))
 const Reports          = lazy(() => import('./pages/finance/Reports'))
 
@@ -138,13 +140,15 @@ export default function App() {
             <Route path="/finance" element={<Ledger />} />
             <Route path="/finance/daily-report" element={<DailyReport />} />
             <Route path="/finance/setup" element={<LedgerSetup />} />
+            <Route path="/finance/invoices" element={<LedgerInvoices />} />
+            <Route path="/finance/receipts" element={<LedgerReceipts />} />
             {/* Superseded by the ledger above, kept reachable by URL so the
                 client-payment workflow and its receipts are not lost. */}
             <Route path="/finance/old" element={<FinanceDashboard />} />
+            <Route path="/finance/old/receipts" element={<LegacyReceipts />} />
+            <Route path="/finance/old/invoices" element={<LegacyInvoices />} />
             <Route path="/finance/pending" element={<PendingPayments />} />
-            <Route path="/finance/receipts" element={<Receipts />} />
-            <Route path="/finance/invoices" element={<Invoices />} />
-            <Route path="/finance/invoices/new" element={<CreateInvoice />} />
+            <Route path="/finance/old/invoices/new" element={<CreateInvoice />} />
             <Route path="/finance/income/new" element={<RecordIncome />} />
             <Route path="/finance/expenses" element={<Expenses />} />
             <Route path="/finance/reports" element={<Reports />} />
