@@ -9,6 +9,7 @@ import { Input } from '../../components/ui/Field'
 import { useAuth } from '../../contexts/AuthContext'
 import { useOfficeSettings } from '../../contexts/OfficeSettingsContext'
 import { financeSummary } from '../../services/financeLedgerService'
+import { Letterhead } from '../../components/finance/PrintableDocs'
 import { formatDate } from '../../utils/format'
 
 const today = () => new Date().toISOString().slice(0, 10)
@@ -25,7 +26,7 @@ const BUCKET_COLOR = { cash: '#2563eb', bank: '#059669', mobile: '#f59e0b' }
 export default function DailyReport() {
   const [day, setDay] = useState(today())
   const { profile } = useAuth()
-  const { settings, money } = useOfficeSettings()
+  const { money } = useOfficeSettings()
 
   const summary = useQuery({
     queryKey: ['finance-summary', day],
@@ -64,26 +65,8 @@ export default function DailyReport() {
       </div>
 
       <div className="card mx-auto max-w-4xl p-8 print:border-0 print:shadow-none">
-        {/* ---------------- letterhead ---------------- */}
-        <div className="flex items-start justify-between gap-6 border-b-2 border-navy-800 pb-4">
-          <div className="min-w-0">
-            <h1 className="text-base font-bold uppercase text-navy-900">
-              {settings?.office_name ?? 'Olad Law Office'}
-            </h1>
-            <p className="text-xs text-ink-500">Finance Management System</p>
-            {settings?.address && (
-              <p className="mt-1 whitespace-pre-line text-xs text-ink-500">{settings.address}</p>
-            )}
-          </div>
-          {settings?.logo_url && (
-            <img src={settings.logo_url} alt="" className="h-16 w-16 shrink-0 object-contain" />
-          )}
-          <div className="shrink-0 text-right text-xs text-ink-500">
-            {settings?.phone && <p>Tel: {settings.phone}</p>}
-            {settings?.email && <p>Email: {settings.email}</p>}
-            {settings?.website && <p>Website: {settings.website}</p>}
-          </div>
-        </div>
+        {/* One letterhead serves the report, the invoice and the receipt. */}
+        <Letterhead />
 
         <div className="py-5 text-center">
           <h2 className="text-xl font-bold tracking-wide text-navy-800">DAILY FINANCE REPORT</h2>

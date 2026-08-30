@@ -113,14 +113,7 @@ export default function Login() {
             <div className="my-4 h-px bg-surface-border" />
 
             <div>
-              <h2 className="text-center text-lg font-semibold tracking-tight text-ink-900">
-                {t('auth.welcome')}
-              </h2>
-              <p className="mx-auto mt-1 max-w-xs text-center text-[13px] leading-snug text-ink-500">
-                {t('auth.welcomeHint')}
-              </p>
-
-              <form onSubmit={handleSubmit} className="mt-4 space-y-3" noValidate>
+              <form onSubmit={handleSubmit} className="space-y-3" noValidate>
               {error && (
                 <div
                   role="alert"
@@ -195,11 +188,6 @@ export default function Login() {
               </Button>
               </form>
 
-              <p className="mt-3 text-center text-2xs leading-snug text-ink-400">
-                {t('auth.noSignup')}
-                <br />
-                {t('auth.lockWarning')}
-              </p>
             </div>
           </div>
 

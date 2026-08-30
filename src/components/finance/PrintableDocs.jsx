@@ -13,44 +13,55 @@ import { amountInWords } from '../../services/billingService'
  * here, so the paper always agrees with the ledger.
  */
 
-function Letterhead({ compact = false }) {
+/**
+ * The office's official letterhead: the republic line across the top, the
+ * Somali title on the left, the seal in the middle and the Arabic title on
+ * the right. Drawn rather than dropped in as a picture so it stays sharp at
+ * any print size and the address still comes from Office Settings.
+ */
+export function Letterhead() {
   const { settings } = useOfficeSettings()
   return (
-    <div className="flex items-start justify-between gap-6 border-b-4 border-navy-900 pb-4">
-      <div className="flex shrink-0 flex-col items-center gap-1">
-        {settings?.logo_url && (
-          <img src={settings.logo_url} alt="" className="h-20 w-20 object-contain" />
-        )}
-        <span className="max-w-[9rem] bg-emerald-800 px-2 py-1 text-center text-[8px] font-bold uppercase leading-tight text-white">
-          Olad Law Office and Public Notary Service
-        </span>
+    <header>
+      <p className="text-center text-sm font-bold tracking-wide text-ink-900">
+        JAMHUURIYADDA SOOMAALIYA
+      </p>
+
+      <div className="mt-1 flex items-center justify-between gap-4">
+        <div className="flex-1 text-center text-[11px] font-bold leading-tight text-navy-900">
+          <p>Xafiiska Nootaayada iyo Latalinta</p>
+          <p>Arrimaha Sharciga ee Olad</p>
+          <p className="mt-1.5 font-semibold text-ink-700">MOGADISHU SOMALIA</p>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-center gap-0.5">
+          {settings?.logo_url && (
+            <img src={settings.logo_url} alt="" className="h-16 w-16 object-contain" />
+          )}
+          <span className="max-w-[8rem] bg-emerald-800 px-1.5 py-0.5 text-center text-[6px] font-bold uppercase leading-tight text-white">
+            Olad Law Office and Public Notary Service
+          </span>
+        </div>
+
+        {/* dir=rtl so the Arabic lays out right-to-left as it must. */}
+        <div dir="rtl" lang="ar"
+             className="flex-1 text-center text-[13px] font-bold leading-relaxed text-navy-900">
+          <p>مكتب عولاد للاستشارات</p>
+          <p>القانونية وتوثيق العقود</p>
+          <p className="mt-1 text-[11px] font-semibold text-ink-700">مقديشو - الصومال</p>
+        </div>
       </div>
 
-      <div className={compact ? 'flex-1 text-center' : 'flex-1 text-center'}>
-        <h1 className="text-3xl font-bold tracking-wide text-navy-900">OLAD NOTARY</h1>
-        <p className="text-sm tracking-[0.3em] text-navy-800">PUBLIC NOTARY</p>
-        <div className="mx-auto mt-2 flex max-w-xs items-center gap-2">
-          <span className="h-px flex-1 bg-navy-300" />
-          <span className="text-navy-700">⚖</span>
-          <span className="h-px flex-1 bg-navy-300" />
-        </div>
-        {!compact && (
-          <div className="mt-2 space-y-0.5 text-xs text-ink-600">
-            {settings?.address && <p>📍 {settings.address}</p>}
-            {settings?.phone && <p>📞 {settings.phone}</p>}
-          </div>
-        )}
-      </div>
+      <div className="mt-2 h-1 bg-navy-900" />
 
-      {compact ? (
-        <div className="shrink-0 space-y-0.5 text-right text-xs text-ink-600">
-          {settings?.address && <p>📍 {settings.address}</p>}
-          {settings?.phone && <p>📞 {settings.phone}</p>}
-        </div>
-      ) : (
-        <div className="w-40 shrink-0" />
+      {(settings?.address || settings?.phone || settings?.email) && (
+        <p className="mt-1.5 flex flex-wrap justify-center gap-x-4 gap-y-0.5 text-[10px] text-ink-500">
+          {settings?.address && <span>{settings.address}</span>}
+          {settings?.phone && <span>{settings.phone}</span>}
+          {settings?.email && <span>{settings.email}</span>}
+        </p>
       )}
-    </div>
+    </header>
   )
 }
 
@@ -66,11 +77,7 @@ export function InvoiceDoc({ invoice }) {
 
   return (
     <div className="mx-auto max-w-3xl bg-white p-8 text-ink-800">
-      <div className="flex items-start justify-between gap-6">
-        <div className="flex-1">
-          <Letterhead />
-        </div>
-      </div>
+      <Letterhead />
 
       <div className="mt-4 flex items-start justify-between gap-6">
         <h2 className="text-3xl font-bold text-navy-900">INVOICE</h2>
@@ -204,7 +211,7 @@ export function ReceiptDoc({ receipt }) {
 
   return (
     <div className="mx-auto max-w-3xl bg-white p-8 text-ink-800">
-      <Letterhead compact />
+      <Letterhead />
 
       <h2 className="mt-6 text-center text-4xl font-bold tracking-wide text-navy-900">
         RECEIPT
