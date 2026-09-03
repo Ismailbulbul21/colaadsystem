@@ -21,6 +21,7 @@ const OfficeSettings   = lazy(() => import('./pages/admin/OfficeSettings'))
 const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
 const Backup           = lazy(() => import('./pages/admin/Backup'))
 const FeeRules         = lazy(() => import('./pages/admin/FeeRules'))
+const DocTemplates     = lazy(() => import('./pages/admin/DocumentTemplates'))
 const Archive          = lazy(() => import('./pages/archive/Archive'))
 const Sabarlog         = lazy(() => import('./pages/sabarlog/Sabarlog'))
 const CreateInvoice    = lazy(() => import('./pages/finance/CreateInvoice'))
@@ -108,6 +109,7 @@ export default function App() {
             <Route path="/admin/logs" element={<ActivityLogs />} />
             <Route path="/admin/backup" element={<Backup />} />
             <Route path="/admin/fee-rules" element={<FeeRules />} />
+            <Route path="/admin/templates" element={<DocTemplates />} />
           </Route>
 
           {/* Archive: the paper backlog, open to Admin and the Archive officer */}
