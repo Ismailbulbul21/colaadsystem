@@ -74,7 +74,7 @@ export default function ClientProfile() {
 
   const documents = useQuery({
     queryKey: ['client-documents', id],
-    enabled: hasRole('admin', 'alt', 'finance'),
+    enabled: hasRole('admin', 'nootaayo', 'finance'),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('uploaded_documents')
@@ -209,14 +209,14 @@ export default function ClientProfile() {
         actions={
           <>
             {/* A discount can be asked for any time before money changes hands. */}
-            {hasRole('admin', 'registration') &&
+            {hasRole('admin', 'nootaayo') &&
               !c.price_locked &&
               ['registered', 'waiting_alt', 'document_uploaded', 'waiting_payment'].includes(c.status) && (
               <Button variant="secondary" icon={BadgePercent} onClick={() => setModal('discount')}>
                 Request Discount
               </Button>
             )}
-            {hasRole('admin', 'alt') && ['waiting_alt', 'document_uploaded'].includes(c.status) && (
+            {hasRole('admin', 'nootaayo') && ['waiting_alt', 'document_uploaded'].includes(c.status) && (
               <>
                 <Button variant="secondary" icon={Upload} loading={uploading} onClick={() => fileInput.current?.click()}>
                   Upload Document
@@ -358,7 +358,7 @@ export default function ClientProfile() {
                 </div>
                 {d.is_current && <Badge tone="emerald">Current</Badge>}
                 <Button size="sm" variant="ghost" icon={Download} onClick={() => openDocument(d, false)}>Download</Button>
-                {hasRole('admin', 'alt') && (
+                {hasRole('admin', 'nootaayo') && (
                   <Button size="sm" variant="ghost" icon={Printer} onClick={() => openDocument(d, true)}>Print</Button>
                 )}
               </div>

@@ -119,7 +119,7 @@ export default function App() {
           </Route>
 
           {/* ---------- Registration ---------- */}
-          <Route element={<ProtectedRoute roles={['admin', 'registration']} />}>
+          <Route element={<ProtectedRoute roles={['admin', 'nootaayo']} />}>
             <Route path="/registration" element={<RegistrationDashboard />} />
             <Route path="/registration/new" element={<NewClient />} />
             <Route path="/registration/drafts" element={<Drafts />} />
@@ -129,7 +129,7 @@ export default function App() {
           </Route>
 
           {/* ---------- ALT ---------- */}
-          <Route element={<ProtectedRoute roles={['admin', 'alt']} />}>
+          <Route element={<ProtectedRoute roles={['admin', 'nootaayo']} />}>
             <Route path="/alt" element={<AltDashboard />} />
             <Route path="/alt/queue" element={<WorkQueue />} />
             <Route path="/alt/documents" element={<DocumentCenter />} />

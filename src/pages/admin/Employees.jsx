@@ -17,7 +17,7 @@ import { ROLE_LABELS } from '../../constants'
 import { useAuth } from '../../contexts/AuthContext'
 
 const ROLE_OPTIONS = Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label }))
-const BLANK = { full_name: '', username: '', password: '', phone: '', role_code: 'registration', is_active: true }
+const BLANK = { full_name: '', username: '', password: '', phone: '', role_code: 'nootaayo', is_active: true }
 
 export default function Employees() {
   const queryClient = useQueryClient()

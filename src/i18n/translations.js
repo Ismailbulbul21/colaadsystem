@@ -92,8 +92,7 @@ export const translations = {
 
     // ---------- roles ----------
     'role.admin': 'Maamulaha',
-    'role.registration': 'Diiwaangelinta',
-    'role.alt': 'Waaxda Nootaayada',
+    'role.nootaayo': 'Sarkaalka Nootaayada',
     'role.finance': 'Maaliyadda',
     'role.archive': 'Kaydiyaha Diiwaanka',
     'role.sabarlog': 'Sarkaalka Sabarlogga',
@@ -248,8 +247,7 @@ export const translations = {
     'top.language': 'Language',
 
     'role.admin': 'Administrator',
-    'role.registration': 'Registration',
-    'role.alt': 'Nootaayo Department',
+    'role.nootaayo': 'Nootaayo Officer',
     'role.finance': 'Finance',
     'role.archive': 'Archive & Records Officer',
     'role.sabarlog': 'Sabarlog Officer',

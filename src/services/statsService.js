@@ -49,7 +49,7 @@ export async function fetchSidebarBadges(role) {
         .then((r) => (out.discounts = r.count ?? 0)),
     )
   }
-  if (role === 'alt' || role === 'admin') {
+  if (role === 'nootaayo' || role === 'admin') {
     tasks.push(
       countClients((q) => q.in('status', ['waiting_alt', 'document_uploaded'])).then(
         (r) => (out.altQueue = r.count ?? 0),
@@ -63,7 +63,7 @@ export async function fetchSidebarBadges(role) {
       ),
     )
   }
-  if (role === 'registration') {
+  if (role === 'nootaayo') {
     // Unfinished work is easy to forget, so the count sits in the menu.
     tasks.push(
       countClients((q) => q.eq('status', 'draft')).then((r) => (out.drafts = r.count ?? 0)),

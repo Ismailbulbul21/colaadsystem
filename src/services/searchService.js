@@ -50,7 +50,7 @@ export async function universalSearch(term, role) {
 
   // Documents are searchable by title or file name, which is how staff refer
   // to them ("the House Transfer agreement", "agreement_v2.docx").
-  if (role === 'admin' || role === 'alt' || role === 'finance') {
+  if (role === 'admin' || role === 'nootaayo' || role === 'finance') {
     tasks.push(
       supabase
         .from('uploaded_documents')

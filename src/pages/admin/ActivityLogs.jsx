@@ -10,7 +10,9 @@ import { useTableState } from '../../hooks/useTableState'
 import { formatDateTime } from '../../utils/format'
 import { dayRangeToTimestamps } from '../../utils/format'
 
-const MODULES = ['auth', 'registration', 'admin', 'alt', 'finance', 'workflow'].map((m) => ({
+const MODULES = ['auth', 'nootaayo', 'admin', 'finance', 'workflow', 'sabarlog',
+  // kept so entries written before the roles merged stay filterable
+  'registration', 'alt'].map((m) => ({
   value: m,
   label: m.charAt(0).toUpperCase() + m.slice(1),
 }))

@@ -4,8 +4,7 @@
 
 export const ROLES = {
   ADMIN: 'admin',
-  REGISTRATION: 'registration',
-  ALT: 'alt',
+  NOOTAAYO: 'nootaayo',
   FINANCE: 'finance',
   ARCHIVE: 'archive',
   SABARLOG: 'sabarlog',
@@ -15,8 +14,7 @@ export const ROLE_LABELS = {
   admin: 'Administrator',
   archive: 'Archive & Records Officer',
   sabarlog: 'Sabarlog Officer',
-  registration: 'Registration',
-  alt: 'Nootaayo Department',
+  nootaayo: 'Nootaayo Officer',
   finance: 'Finance',
 }
 
@@ -167,14 +165,14 @@ export const NAV_ITEMS = [
   { to: '/admin/logs', tKey: 'nav.activityLogs', label: 'Activity Logs', icon: 'ScrollText', roles: ['admin'] },
   { to: '/admin/backup', tKey: 'nav.backup', label: 'Backup', icon: 'DatabaseBackup', roles: ['admin'] },
 
-  { to: '/registration', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['registration'], end: true },
-  { to: '/registration/new', tKey: 'nav.newClient', label: 'New Client', icon: 'UserPlus', roles: ['registration'] },
-  { to: '/registration/drafts', tKey: 'nav.drafts', label: 'Drafts', icon: 'FileClock', roles: ['registration'], badge: 'drafts' },
-  { to: '/registration/clients', tKey: 'nav.myClients', label: 'My Clients', icon: 'Users', roles: ['registration'] },
-
-  { to: '/alt', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['alt'], end: true },
-  { to: '/alt/queue', tKey: 'nav.workQueue', label: 'Work Queue', icon: 'Inbox', roles: ['alt'], badge: 'altQueue' },
-  { to: '/alt/documents', tKey: 'nav.documentCenter', label: 'Document Center', icon: 'FolderOpen', roles: ['alt'] },
+  // One officer runs the whole notary workflow, so what used to be two menus
+  // (Registration and the ALT department) is now a single list.
+  { to: '/registration', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['nootaayo'], end: true },
+  { to: '/registration/new', tKey: 'nav.newClient', label: 'New Client', icon: 'UserPlus', roles: ['nootaayo'] },
+  { to: '/registration/drafts', tKey: 'nav.drafts', label: 'Drafts', icon: 'FileClock', roles: ['nootaayo'], badge: 'drafts' },
+  { to: '/registration/clients', tKey: 'nav.myClients', label: 'My Clients', icon: 'Users', roles: ['nootaayo'] },
+  { to: '/alt/queue', tKey: 'nav.workQueue', label: 'Work Queue', icon: 'Inbox', roles: ['nootaayo'], badge: 'altQueue' },
+  { to: '/alt/documents', tKey: 'nav.documentCenter', label: 'Document Center', icon: 'FolderOpen', roles: ['nootaayo'] },
 
   // The office replaced the payments/receipts screens with a hand-entered
   // ledger. Those pages still exist at /finance/old but are off the menu.
@@ -193,13 +191,12 @@ export const NAV_ITEMS = [
   { to: '/archive', tKey: 'nav.archive', label: 'Archive', icon: 'Archive', roles: ['admin', 'archive'], end: true },
   { to: '/sabarlog', tKey: 'nav.sabarlog', label: 'Sabarlog', icon: 'Map', roles: ['admin', 'sabarlog'], end: true },
 
-  { to: '/clients', tKey: 'nav.clientSearch', label: 'Client Search', icon: 'Search', roles: ['admin', 'registration', 'alt', 'finance', 'archive', 'sabarlog'] },
+  { to: '/clients', tKey: 'nav.clientSearch', label: 'Client Search', icon: 'Search', roles: ['admin', 'nootaayo', 'finance', 'archive', 'sabarlog'] },
 ]
 
 export const HOME_BY_ROLE = {
   admin: '/admin',
-  registration: '/registration',
-  alt: '/alt',
+  nootaayo: '/registration',
   finance: '/finance',
   // The Archive officer has one job, so the archive itself is their home.
   archive: '/archive',

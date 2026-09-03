@@ -15,7 +15,7 @@ export default function ClientSearch() {
         title="Client Search"
         description="Search by name, phone, registration number, service, status or date."
         actions={
-          hasRole('admin', 'registration') && (
+          hasRole('admin', 'nootaayo') && (
             <Link to="/registration/new">
               <Button icon={Plus}>New Client</Button>
             </Link>
