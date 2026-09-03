@@ -171,12 +171,7 @@ export const NAV_ITEMS = [
   // (Registration and the ALT department) is now a single list.
   { to: '/registration', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['nootaayo'], end: true },
   { to: '/notary/new', tKey: 'nav.newNotaryService', label: 'New Notary Service', icon: 'FilePlus2', roles: ['nootaayo'] },
-  { to: '/notary', tKey: 'nav.notaryServices', label: 'Notary Services', icon: 'Stamp', roles: ['nootaayo'] },
-  { to: '/registration/new', tKey: 'nav.newClient', label: 'New Client', icon: 'UserPlus', roles: ['nootaayo'] },
-  { to: '/registration/drafts', tKey: 'nav.drafts', label: 'Drafts', icon: 'FileClock', roles: ['nootaayo'], badge: 'drafts' },
-  { to: '/registration/clients', tKey: 'nav.myClients', label: 'My Clients', icon: 'Users', roles: ['nootaayo'] },
-  { to: '/alt/queue', tKey: 'nav.workQueue', label: 'Work Queue', icon: 'Inbox', roles: ['nootaayo'], badge: 'altQueue' },
-  { to: '/alt/documents', tKey: 'nav.documentCenter', label: 'Document Center', icon: 'FolderOpen', roles: ['nootaayo'] },
+  { to: '/notary', tKey: 'nav.notaryServices', label: 'Notary Services', icon: 'Stamp', roles: ['nootaayo'], end: true },
 
   // The office replaced the payments/receipts screens with a hand-entered
   // ledger. Those pages still exist at /finance/old but are off the menu.
@@ -194,7 +189,7 @@ export const NAV_ITEMS = [
   { to: '/finance/daily-report', tKey: 'nav.dailyReport', label: 'Daily Report', icon: 'FileBarChart', roles: ['admin'] },
   { to: '/alt/documents', tKey: 'nav.documents', label: 'Documents', icon: 'FolderOpen', roles: ['admin'] },
 
-  { to: '/notary', tKey: 'nav.notaryServices', label: 'Notary Services', icon: 'Stamp', roles: ['admin'] },
+  { to: '/notary', tKey: 'nav.notaryServices', label: 'Notary Services', icon: 'Stamp', roles: ['admin'], end: true },
   { to: '/archive', tKey: 'nav.archive', label: 'Archive', icon: 'Archive', roles: ['admin', 'archive'], end: true },
   { to: '/sabarlog', tKey: 'nav.sabarlog', label: 'Sabarlog', icon: 'Map', roles: ['admin', 'sabarlog'], end: true },
 

@@ -71,6 +71,16 @@ export async function retireTemplate(id) {
 
 const PLACEHOLDER = /\{\{(\w+)\}\}/g
 
+/**
+ * Placeholders that are allowed to come out empty.
+ *
+ * company_clause is a whole sentence that only belongs on a deed when the
+ * land is held by a company. On an ordinary sale it is deliberately nothing,
+ * and treating that as an unfilled field left «company_clause» printed on the
+ * page and blocked the officer from generating at all.
+ */
+export const OPTIONAL_PLACEHOLDERS = new Set(['company_clause'])
+
 /** Every placeholder a piece of template text asks for. */
 export function placeholdersIn(text) {
   return [...new Set([...(text ?? '').matchAll(PLACEHOLDER)].map((m) => m[1]))]
@@ -87,11 +97,16 @@ export function placeholdersIn(text) {
  * Returns { text, missing[] } so the screen can refuse to finalise while
  * anything is still outstanding.
  */
-export function renderTemplate(text, data) {
+export function renderTemplate(text, data, { optional = OPTIONAL_PLACEHOLDERS } = {}) {
   const missing = []
   const filled = (text ?? '').replace(PLACEHOLDER, (_, key) => {
     const value = data?.[key]
-    if (value === undefined || value === null || String(value).trim() === '') {
+    const isBlank = value === undefined || value === null || String(value).trim() === ''
+
+    // An optional clause that is empty is an answer, not an omission.
+    if (isBlank && optional.has(key)) return ''
+
+    if (isBlank) {
       missing.push(key)
       return `«${key}»`
     }
