@@ -169,7 +169,7 @@ export const NAV_ITEMS = [
 
   // One officer runs the whole notary workflow, so what used to be two menus
   // (Registration and the ALT department) is now a single list.
-  { to: '/registration', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['nootaayo'], end: true },
+  { to: '/notary/dashboard', tKey: 'nav.dashboard', label: 'Dashboard', icon: 'LayoutDashboard', roles: ['nootaayo'], end: true },
   { to: '/notary/new', tKey: 'nav.newNotaryService', label: 'New Notary Service', icon: 'FilePlus2', roles: ['nootaayo'] },
   { to: '/notary', tKey: 'nav.notaryServices', label: 'Notary Services', icon: 'Stamp', roles: ['nootaayo'], end: true },
 
@@ -198,7 +198,7 @@ export const NAV_ITEMS = [
 
 export const HOME_BY_ROLE = {
   admin: '/admin',
-  nootaayo: '/registration',
+  nootaayo: '/notary/dashboard',
   finance: '/finance',
   // The Archive officer has one job, so the archive itself is their home.
   archive: '/archive',

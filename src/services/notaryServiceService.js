@@ -97,3 +97,13 @@ export async function cancelService(id, reason) {
   if (error) throw error
   return data
 }
+
+/**
+ * Every figure on the officer's dashboard, counted once in the database so
+ * the headline numbers and the lists beneath them agree.
+ */
+export async function notaryDashboard(date) {
+  const { data, error } = await supabase.rpc('notary_dashboard', { p_date: date ?? null })
+  if (error) throw error
+  return data
+}
