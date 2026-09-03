@@ -44,6 +44,7 @@ const DailyReport      = lazy(() => import('./pages/finance/DailyReport'))
 const LedgerSetup      = lazy(() => import('./pages/finance/LedgerSetup'))
 const LedgerInvoices   = lazy(() => import('./pages/finance/Invoices'))
 const LedgerReceipts   = lazy(() => import('./pages/finance/Receipts'))
+const NotaryFees       = lazy(() => import('./pages/finance/NotaryFees'))
 const PendingPayments  = lazy(() => import('./pages/finance/PendingPayments'))
 const LegacyReceipts   = lazy(() => import('./pages/finance/LegacyReceipts'))
 const LegacyInvoices   = lazy(() => import('./pages/finance/LegacyInvoices'))
@@ -155,6 +156,7 @@ export default function App() {
             <Route path="/finance/setup" element={<LedgerSetup />} />
             <Route path="/finance/invoices" element={<LedgerInvoices />} />
             <Route path="/finance/receipts" element={<LedgerReceipts />} />
+            <Route path="/finance/notary-fees" element={<NotaryFees />} />
             {/* Superseded by the ledger above, kept reachable by URL so the
                 client-payment workflow and its receipts are not lost. */}
             <Route path="/finance/old" element={<FinanceDashboard />} />

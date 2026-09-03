@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import {
   LayoutDashboard, BadgePercent, Users, Briefcase, Settings, ScrollText,
   UserPlus, Inbox, FolderOpen, Wallet, ReceiptText, FileText, TrendingDown,
-  BarChart3, Search, Circle, DatabaseBackup, FileClock, Archive, Map, FileBarChart, FileSpreadsheet, Calculator, FilePlus2, Stamp,
+  BarChart3, Search, Circle, DatabaseBackup, FileClock, Archive, Map, FileBarChart, FileSpreadsheet, Calculator, FilePlus2, Stamp, BadgeDollarSign,
 } from 'lucide-react'
 
 import { useAuth } from '../contexts/AuthContext'
@@ -15,7 +15,7 @@ import { NAV_ITEMS } from '../constants'
 const ICONS = {
   LayoutDashboard, BadgePercent, Users, Briefcase, Settings, ScrollText,
   UserPlus, Inbox, FolderOpen, Wallet, ReceiptText, FileText, TrendingDown,
-  BarChart3, Search, DatabaseBackup, FileClock, Archive, Map, FileBarChart, FileSpreadsheet, Calculator, FilePlus2, Stamp,
+  BarChart3, Search, DatabaseBackup, FileClock, Archive, Map, FileBarChart, FileSpreadsheet, Calculator, FilePlus2, Stamp, BadgeDollarSign,
 }
 
 /**

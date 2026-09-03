@@ -181,12 +181,14 @@ export const NAV_ITEMS = [
   // The office replaced the payments/receipts screens with a hand-entered
   // ledger. Those pages still exist at /finance/old but are off the menu.
   { to: '/finance', tKey: 'nav.finance', label: 'Finance', icon: 'Wallet', roles: ['finance'], end: true },
+  { to: '/finance/notary-fees', tKey: 'nav.notaryFees', label: 'Notary Fees', icon: 'BadgeDollarSign', roles: ['finance'] },
   { to: '/finance/invoices', tKey: 'nav.invoices', label: 'Invoices', icon: 'FileSpreadsheet', roles: ['finance'] },
   { to: '/finance/receipts', tKey: 'nav.receipts', label: 'Receipts', icon: 'ReceiptText', roles: ['finance'] },
   { to: '/finance/daily-report', tKey: 'nav.dailyReport', label: 'Daily Report', icon: 'FileBarChart', roles: ['finance'] },
 
   // Admin reaches every department view through its own section
   { to: '/finance', tKey: 'nav.finance', label: 'Finance', icon: 'Wallet', roles: ['admin'] },
+  { to: '/finance/notary-fees', tKey: 'nav.notaryFees', label: 'Notary Fees', icon: 'BadgeDollarSign', roles: ['admin'] },
   { to: '/finance/invoices', tKey: 'nav.invoices', label: 'Invoices', icon: 'FileSpreadsheet', roles: ['admin'] },
   { to: '/finance/receipts', tKey: 'nav.receipts', label: 'Receipts', icon: 'ReceiptText', roles: ['admin'] },
   { to: '/finance/daily-report', tKey: 'nav.dailyReport', label: 'Daily Report', icon: 'FileBarChart', roles: ['admin'] },

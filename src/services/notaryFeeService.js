@@ -78,3 +78,36 @@ export function describeRule(rule) {
     ? `${v % 1 === 0 ? v : v.toFixed(2)}% of amount`
     : `$${v.toFixed(2)} fixed`
 }
+
+// --------------------------------------------- fees owed on finalised work
+
+/**
+ * Finalised documents whose fees the office has not collected yet.
+ *
+ * transaction_amount and office_fees are separate columns on purpose: only
+ * the fees are income, and keeping them apart in the data makes it hard to
+ * confuse them on screen.
+ */
+export async function listAwaitingPayment({ range } = {}) {
+  let q = supabase
+    .from('notary_awaiting_payment')
+    .select('*', { count: 'exact' })
+    .order('finalized_at', { ascending: false })
+  if (range) q = q.range(range.from, range.to)
+
+  const { data, error, count } = await q
+  if (error) throw error
+  return { rows: data ?? [], total: count ?? 0 }
+}
+
+/** Writes the office's FEES into the ledger — never the transaction amount. */
+export async function recordNotaryPayment({ serviceId, methodId, typeId, paidDate }) {
+  const { data, error } = await supabase.rpc('record_notary_payment', {
+    p_service_id: serviceId,
+    p_method_id: methodId,
+    p_type_id: typeId,
+    p_paid_date: paidDate || null,
+  })
+  if (error) throw error
+  return data
+}
