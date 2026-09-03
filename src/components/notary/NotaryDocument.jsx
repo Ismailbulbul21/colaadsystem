@@ -2,6 +2,88 @@ import { Letterhead } from '../finance/PrintableDocs'
 import { formatDate } from '../../utils/format'
 
 /**
+ * Some of the office's deeds lay the land details out as a boxed table rather
+ * than a paragraph — Hibo and the Munijibaale sale both do. A template marks
+ * one up as
+ *
+ *   [[TABLE:TILMAAMAHA DHULKA]]
+ *   Ku yaalla|Hodan, Muqdisho
+ *   Lotto No|1752-K
+ *   [[/TABLE]]
+ *
+ * so the wording and the layout both stay in the editable template instead of
+ * being hard-coded per document type.
+ */
+const TABLE_BLOCK = /\[\[TABLE(?::([^\]]*))?\]\]\n?([\s\S]*?)\[\[\/TABLE\]\]/g
+
+function splitIntoBlocks(text) {
+  const blocks = []
+  let last = 0
+  for (const m of (text ?? '').matchAll(TABLE_BLOCK)) {
+    if (m.index > last) blocks.push({ kind: 'text', text: text.slice(last, m.index) })
+    blocks.push({
+      kind: 'table',
+      caption: (m[1] ?? '').trim(),
+      rows: m[2].split('\n')
+        .map((l) => l.trim()).filter(Boolean)
+        .map((l) => { const i = l.indexOf('|'); return i === -1 ? [l, ''] : [l.slice(0, i).trim(), l.slice(i + 1).trim()] }),
+    })
+    last = m.index + m[0].length
+  }
+  if (last < (text ?? '').length) blocks.push({ kind: 'text', text: text.slice(last) })
+  return blocks
+}
+
+function LandTable({ caption, rows }) {
+  return (
+    <table className="w-full border border-ink-800 text-[12px]">
+      {caption && (
+        <thead>
+          <tr>
+            <th colSpan={2}
+                className="border border-ink-800 bg-ink-100 px-2 py-1 text-center font-bold uppercase">
+              {caption}
+            </th>
+          </tr>
+        </thead>
+      )}
+      <tbody>
+        {rows.map(([label, value], i) => (
+          <tr key={i}>
+            <td className="w-2/5 border border-ink-800 px-2 py-1 font-semibold">{label}</td>
+            <td className="border border-ink-800 px-2 py-1">{value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+/** Text and tables in the order the template puts them. */
+function DocumentBody({ text }) {
+  const blocks = splitIntoBlocks(text)
+  // Consecutive tables sit side by side, as they do on the office's paper.
+  const out = []
+  for (let i = 0; i < blocks.length; i += 1) {
+    const b = blocks[i]
+    if (b.kind === 'table' && blocks[i + 1]?.kind === 'table') {
+      out.push(
+        <div key={i} className="my-4 grid gap-3 sm:grid-cols-2">
+          <LandTable {...b} />
+          <LandTable {...blocks[i + 1]} />
+        </div>,
+      )
+      i += 1
+    } else if (b.kind === 'table') {
+      out.push(<div key={i} className="my-4"><LandTable {...b} /></div>)
+    } else if (b.text.trim()) {
+      out.push(<div key={i} className="whitespace-pre-line">{b.text.trim()}</div>)
+    }
+  }
+  return <div className="space-y-3">{out}</div>
+}
+
+/**
  * The legal document as it prints.
  *
  * Once finalised the wording comes from the stored text, never from the
@@ -26,8 +108,8 @@ export default function NotaryDocument({
         UJEEDO : {title}
       </h2>
 
-      <div className="mt-5 whitespace-pre-line text-[13px] leading-[1.9]">
-        {bodyText}
+      <div className="mt-5 text-[13px] leading-[1.9]">
+        <DocumentBody text={bodyText} />
       </div>
 
       {/* ---------------- signatures ---------------- */}

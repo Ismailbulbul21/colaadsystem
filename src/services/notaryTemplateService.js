@@ -79,7 +79,7 @@ const PLACEHOLDER = /\{\{(\w+)\}\}/g
  * and treating that as an unfilled field left «company_clause» printed on the
  * page and blocked the officer from generating at all.
  */
-export const OPTIONAL_PLACEHOLDERS = new Set(['company_clause'])
+export const OPTIONAL_PLACEHOLDERS = new Set(['company_clause', 'agent_clause'])
 
 /** Every placeholder a piece of template text asks for. */
 export function placeholdersIn(text) {
@@ -149,6 +149,8 @@ export function buildDocumentData(service, { office, template } = {}) {
     land_size: land.size, land_sqm: land.sqm, lot_no: land.lot_no,
     land_boundaries: land.boundaries,
     sabarlog_no: land.sabarlog_no, sabarlog_date: land.sabarlog_date,
+    // The deed this land came from, quoted on Hibo and Munijibaale sales.
+    previous_ref: land.previous_ref, previous_ref_date: land.previous_ref_date,
 
     amount: amount.toLocaleString('en-US', { minimumFractionDigits: 2 }),
     // Pre-filled, and overwritable: the office reviews this line by hand.
@@ -161,6 +163,12 @@ export function buildDocumentData(service, { office, template } = {}) {
         ` sida ku cad Xeer-hoosaad Aasaaska Shirkadda leh Ref No: ${service.company.deed_no ?? ''}` +
         ` uuna saxiixay ${service.company.notary ?? ''},` +
         ` Lehna Shatti Ganacsi No: ${service.company.licence_no ?? ''},`
+      : '',
+
+    // Only when a party acts through a wakiil, so an ordinary deed does not
+    // carry a dangling clause.
+    agent_clause: service.agent?.has_agent && service.agent?.name
+      ? `, wakiilu beecna uu u yahay ${service.agent.name}`
       : '',
 
     reference_no: service.reference_no ?? '',

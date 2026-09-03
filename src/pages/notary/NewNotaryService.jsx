@@ -57,7 +57,8 @@ const blank = () => ({
   agent: { has_agent: false, name: '', id_no: '', phone: '' },
   land: {
     district: '', area_name: '', size: '', sqm: '', lot_no: '',
-    boundaries: '', sabarlog_no: '', sabarlog_date: '', previous_ref: '', other: '',
+    boundaries: '', sabarlog_no: '', sabarlog_date: '',
+    previous_ref: '', previous_ref_date: '', other: '',
   },
   company: { is_company: false, name: '', deed_no: '', notary: '', licence_no: '' },
   witnesses: ['', '', ''],
@@ -149,7 +150,7 @@ export default function NewNotaryService() {
         amount_words: amountWords,
         notary_name: form.notary_name,
         party1: form.party1, party2: form.party2,
-        land: form.land, company: form.company,
+        land: form.land, company: form.company, agent: form.agent,
         reference_no: finalResult?.reference_no,
       },
       {
@@ -511,7 +512,9 @@ function DetailsStep({ form, setForm, setIn, template }) {
                  onChange={setIn('land','sabarlog_date')} placeholder="06/07/2026" />
           <Input label="Reference hore" value={form.land.previous_ref}
                  onChange={setIn('land','previous_ref')} placeholder="NR132/01667/ON/2025"
-                 hint="Ikhtiyaari" />
+                 hint="Deedka hore" />
+          <Input label="Taariikhda Ref hore" value={form.land.previous_ref_date}
+                 onChange={setIn('land','previous_ref_date')} placeholder="25/01/2025" />
           <Input label="Jihooyinka" value={form.land.boundaries}
                  onChange={setIn('land','boundaries')}
                  placeholder="Waqooyi Jid, Inta kale dhul dad"
