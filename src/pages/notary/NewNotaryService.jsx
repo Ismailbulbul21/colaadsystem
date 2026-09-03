@@ -52,7 +52,7 @@ const emptyParty = () => ({
 const blank = () => ({
   document_date: new Date().toISOString().slice(0, 10),
   customer_name: '', customer_phone: '', notary_name: 'Dr. Mohamed Abdi Dahir',
-  service_id: '',
+  service_id: '', template_id: '',
   party1: emptyParty(), party2: emptyParty(),
   agent: { has_agent: false, name: '', id_no: '', phone: '' },
   land: {
@@ -105,7 +105,7 @@ export default function NewNotaryService() {
       document_date: d.document_date,
       customer_name: d.customer_name ?? '', customer_phone: d.customer_phone ?? '',
       notary_name: d.notary_name ?? 'Dr. Mohamed Abdi Dahir',
-      service_id: d.service_id ?? '',
+      service_id: d.service_id ?? '', template_id: d.template_id ?? '',
       party1: { ...emptyParty(), ...(d.party1 ?? {}) },
       party2: { ...emptyParty(), ...(d.party2 ?? {}) },
       agent: { has_agent: false, name: '', id_no: '', phone: '', ...(d.agent ?? {}) },
@@ -122,12 +122,23 @@ export default function NewNotaryService() {
     [services.data, form.service_id],
   )
 
-  const template = useMemo(() => {
+  /**
+   * Templates bound to this service win outright. Only when none is bound do
+   * we fall back to category-wide ones — matching on category alone would
+   * hand a gift the sale wording, and with it the wrong law article.
+   */
+  const matching = useMemo(() => {
     const all = (templates.data ?? []).filter((t) => t.is_active)
-    return all.find((t) => t.service_id === form.service_id)
-        || all.find((t) => t.service_category === service?.category)
-        || null
+    const exact = all.filter((t) => t.service_id === form.service_id)
+    return exact.length
+      ? exact
+      : all.filter((t) => !t.service_id && t.service_category === service?.category)
   }, [templates.data, form.service_id, service?.category])
+
+  const template = useMemo(
+    () => matching.find((t) => t.id === form.template_id) ?? matching[0] ?? null,
+    [matching, form.template_id],
+  )
 
   // Fees come from the database so the screen, the document and Finance
   // cannot each arrive at a different figure.
@@ -175,7 +186,7 @@ export default function NewNotaryService() {
     setForm((p) => ({ ...p, [section]: { ...p[section], [k]: e.target.value } }))
 
   const save = useMutation({
-    mutationFn: () => saveDraft({ id: savedId, serviceId: form.service_id, form: { ...form, amount_words: amountWords } }),
+    mutationFn: () => saveDraft({ id: savedId, serviceId: form.service_id, templateId: template?.id, form: { ...form, amount_words: amountWords } }),
     onSuccess: (d) => {
       setSavedId(d.id)
       toast.success('Draft saved')
@@ -188,11 +199,11 @@ export default function NewNotaryService() {
     mutationFn: async () => {
       let id = savedId
       if (!id) {
-        const d = await saveDraft({ id: null, serviceId: form.service_id, form: { ...form, amount_words: amountWords } })
+        const d = await saveDraft({ id: null, serviceId: form.service_id, templateId: template?.id, form: { ...form, amount_words: amountWords } })
         id = d.id
         setSavedId(id)
       } else {
-        await saveDraft({ id, serviceId: form.service_id, form: { ...form, amount_words: amountWords } })
+        await saveDraft({ id, serviceId: form.service_id, templateId: template?.id, form: { ...form, amount_words: amountWords } })
       }
       return finalizeService({
         id,
@@ -299,7 +310,7 @@ export default function NewNotaryService() {
               const chosen = form.service_id === s.id
               return (
                 <button key={s.id} type="button"
-                        onClick={() => setForm((p) => ({ ...p, service_id: s.id }))}
+                        onClick={() => setForm((p) => ({ ...p, service_id: s.id, template_id: '' }))}
                         className={clsx(
                           'rounded-xl border p-4 text-left transition-colors',
                           chosen
@@ -317,6 +328,21 @@ export default function NewNotaryService() {
               )
             })}
           </div>
+
+          {matching.length > 1 && (
+            <div className="mt-5">
+              <Select
+                label="Nooca dukumentiga"
+                value={template?.id ?? ''}
+                onChange={(e) => setForm((p) => ({ ...p, template_id: e.target.value }))}
+                options={matching.map((t) => ({
+                  value: t.id,
+                  label: t.law_article ? `${t.title} — Qodobka ${t.law_article}` : t.title,
+                }))}
+                hint="Adeeggan wuxuu leeyahay wax ka badan hal dukumenti — dooro midka saxda ah"
+              />
+            </div>
+          )}
 
           {form.service_id && (
             <div className={clsx(

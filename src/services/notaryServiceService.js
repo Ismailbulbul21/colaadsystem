@@ -50,10 +50,12 @@ export async function getService(id) {
 }
 
 /** Saves whatever has been typed so far. Returns the id and the chosen template. */
-export async function saveDraft({ id, serviceId, form }) {
+export async function saveDraft({ id, serviceId, templateId, form }) {
   const { data, error } = await supabase.rpc('save_notary_service', {
     p_id: id ?? null,
     p_service_id: serviceId,
+    // The officer's choice, when a service has more than one document type.
+    p_template_id: templateId ?? null,
     p_payload: {
       document_date: form.document_date || null,
       customer_name: form.customer_name?.trim() || null,
