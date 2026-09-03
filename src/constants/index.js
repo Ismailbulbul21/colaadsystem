@@ -161,6 +161,7 @@ export const NAV_ITEMS = [
   { to: '/admin/discounts', tKey: 'nav.pendingDiscounts', label: 'Pending Discounts', icon: 'BadgePercent', roles: ['admin'], badge: 'discounts' },
   { to: '/admin/employees', tKey: 'nav.employees', label: 'Employees', icon: 'Users', roles: ['admin'] },
   { to: '/admin/services', tKey: 'nav.services', label: 'Services', icon: 'Briefcase', roles: ['admin'] },
+  { to: '/admin/fee-rules', tKey: 'nav.feeRules', label: 'Fee Rules', icon: 'Calculator', roles: ['admin'] },
   { to: '/admin/settings', tKey: 'nav.officeSettings', label: 'Office Settings', icon: 'Settings', roles: ['admin'] },
   { to: '/admin/logs', tKey: 'nav.activityLogs', label: 'Activity Logs', icon: 'ScrollText', roles: ['admin'] },
   { to: '/admin/backup', tKey: 'nav.backup', label: 'Backup', icon: 'DatabaseBackup', roles: ['admin'] },
