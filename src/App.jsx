@@ -22,6 +22,8 @@ const ActivityLogs     = lazy(() => import('./pages/admin/ActivityLogs'))
 const Backup           = lazy(() => import('./pages/admin/Backup'))
 const FeeRules         = lazy(() => import('./pages/admin/FeeRules'))
 const DocTemplates     = lazy(() => import('./pages/admin/DocumentTemplates'))
+const NotaryServices   = lazy(() => import('./pages/notary/NotaryServices'))
+const NewNotaryService = lazy(() => import('./pages/notary/NewNotaryService'))
 const Archive          = lazy(() => import('./pages/archive/Archive'))
 const Sabarlog         = lazy(() => import('./pages/sabarlog/Sabarlog'))
 const CreateInvoice    = lazy(() => import('./pages/finance/CreateInvoice'))
@@ -120,6 +122,13 @@ export default function App() {
           {/* Sabarlog: land deeds, open to Admin and the Sabarlog officer */}
           <Route element={<ProtectedRoute roles={['admin', 'sabarlog']} />}>
             <Route path="/sabarlog" element={<Sabarlog />} />
+          </Route>
+
+          {/* ---------- Notary: one officer, one workflow ---------- */}
+          <Route element={<ProtectedRoute roles={['admin', 'nootaayo']} />}>
+            <Route path="/notary" element={<NotaryServices />} />
+            <Route path="/notary/new" element={<NewNotaryService />} />
+            <Route path="/notary/:serviceId" element={<NewNotaryService />} />
           </Route>
 
           {/* ---------- Registration ---------- */}
